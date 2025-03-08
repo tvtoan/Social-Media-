@@ -1,0 +1,80 @@
+.form {
+    width: 150px;
+    height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Chia đều không gian giữa các phần tử */
+    align-items: center;
+    padding: 10px;
+    margin-top: 10px;
+    margin-left:50px;
+    border-radius: 10px;
+    background-color: #333334;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* Đảm bảo padding không làm thay đổi kích thước của form */
+  }
+  
+  .form-user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .form-text {
+    width: 95%;
+    height: 20px;
+    padding: 5px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+  }
+  
+  .error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+  }
+  
+  .form-preview {
+    width: 100%;
+    height: 70%; 
+    object-fit: cover; 
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden; 
+  }
+  
+  /* Phần upload icon và form text */
+  .custom-file-upload {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    border: none;
+    text-align: center;
+    margin-top: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    font-size: 30px;
+    color: #d6cbcb;
+    
+  }
+  
+  .form-input {
+    display: none; /* Ẩn input file */
+  }
+  
+  .form-button {
+    width: 70%;
+    padding: 8px;
+    margin-top: 5px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+  }
+  

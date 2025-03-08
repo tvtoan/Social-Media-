@@ -1,0 +1,30 @@
+.story {
+   display: flex;
+   
+    
+}
+
+.story-list {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;   
+    justify-content: flex-start;                    
+    gap: 15px;                    
+    padding: 10px 0;              
+    box-sizing: border-box;            
+    overflow-x: scroll;
+    white-space: nowrap;
+
+    &::-webkit-scrollbar {
+        height:0
+    }
+}
+
+.story-item {
+    list-style: none;
+}
+
+
+
+  

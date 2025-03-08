@@ -1,0 +1,9 @@
+@import './variables';
+
+body {
+    background-color: #1c1c1d;  // Màu nền toàn màn hình
+    color: $text-color;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}

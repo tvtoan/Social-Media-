@@ -1,0 +1,136 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: 70%; /* Thay đổi ở đây */
+  margin: 0 auto;
+}
+
+.cover-picture {
+  position: relative;
+  width: 80%; /* Thay đổi ở đây */
+  height: 450px;
+  background-color: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.upload-input {
+  display: none;
+}
+
+.custom-cover {
+  position: absolute;
+  padding: 10px;
+  right: 20px;
+  bottom: 0px;
+  cursor: pointer;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  font-size: 30px;
+  color: #d1c8c8;
+  cursor: pointer;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-top: -50px;
+  background-color: rgba(0, 0, 0, 0);
+  width: 60%;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatar {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  position: absolute;
+  left: -80px;
+  bottom: -100px;
+}
+
+.username {
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: white;
+  left: 110px;
+  bottom: -40px;
+  position: absolute;
+}
+
+.custom-profile {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  left: 80px;
+  bottom: -90px;
+  font-size: 30px;
+  color: #d1c8c8;
+  cursor: pointer;
+}
+
+.user-posts {
+  margin-top: 150px;
+  width: 100%; /* Thay đổi ở đây */
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.user-posts ul {
+  list-style: none;
+  padding: 0;
+}
+
+.user-posts li {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 780px) {
+  .profile-page {
+    padding: 10px;
+  }
+
+  .user-info {
+    width: 90%;
+  }
+
+  .user-posts {
+    width: 90%;
+  }
+
+  .cover-picture {
+    height: 200px;
+  }
+
+  .avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .username {
+    font-size: 20px;
+  }
+}
