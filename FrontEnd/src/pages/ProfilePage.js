@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./ProfilePage.module.scss";
 import classNames from "classnames/bind";
 import { useAuth } from "../context/AuthContext";
 import {
+  followUser,
   getUserById,
+  unfollowUser,
   updateCoverPicture,
   updateProfilePicture,
 } from "../services/authService";
@@ -11,39 +13,41 @@ import { getPostsByUserId } from "../services/postService";
 import Layout from "../components/Layout/Layout";
 import Post from "../components/Post/Post";
 import CreatePost from "../components/Post/CreatePost";
-import { useNavigate, useParams, userNavigate } from "react-router-dom";
-import { IoIosCamera } from 'react-icons/io';
-import defaultAvt from '../img/default.jpg';
+import { useNavigate, useParams } from "react-router-dom";
+import { IoIosCamera } from "react-icons/io";
+import defaultAvt from "../img/default.jpg";
 
 const cx = classNames.bind(styles);
 
 const ProfilePage = () => {
   const { user, loading } = useAuth();
-  const { userId: id } = useParams(); 
+  const { userId: id } = useParams();
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
+  const [followings, setFollowings] = useState(null);
   const navigate = useNavigate();
+  console.log("user", user);
 
   const profilePictureRef = useRef(null);
   const coverPictureRef = useRef(null);
 
-  
   useEffect(() => {
     if (!loading && !user) {
-      navigate("/"); 
+      navigate("/");
     }
   }, [user, loading, navigate]);
 
   // get info user
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     try {
-      if (!id) return;
-      const data = await getUserById(id); 
+      if (!id || !user) return;
+      const data = await getUserById(id);
       setUserData(data);
+      setFollowings(data.followers.includes(user?._id));
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
-  };
+  }, [id, user]);
 
   // get posts list
   const fetchUserPosts = async () => {
@@ -57,9 +61,37 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    fetchUserData();
-    fetchUserPosts();
-  }, [id]);
+    if (user) {
+      fetchUserData();
+      fetchUserPosts();
+    }
+  }, [id, user, fetchUserData, fetchUserPosts]);
+
+  const handleFollowToggle = async () => {
+    if (id === user?._id) {
+      console.error("Bạn không thể tự follow chính mình.");
+      return;
+    }
+    try {
+      let updateFollowing;
+      if (followings) {
+        await unfollowUser(id);
+        updateFollowing = false;
+      } else {
+        await followUser(id);
+        updateFollowing = true;
+      }
+      setFollowings(updateFollowing);
+      setUserData((prev) => ({
+        ...prev,
+        followers: updateFollowing
+          ? [...prev.followers, user?._id]
+          : prev.followers.filter((followerId) => followerId !== user?._id),
+      }));
+    } catch (error) {
+      console.error("Error following user:", error);
+    }
+  };
 
   const handleProfileClick = () => {
     profilePictureRef.current?.click();
@@ -86,7 +118,7 @@ const ProfilePage = () => {
     if (file) {
       try {
         const updatedUser = await updateCoverPicture(file);
-        setUserData(updatedUser); 
+        setUserData(updatedUser);
       } catch (error) {
         console.error("Error updating cover picture:", error);
       }
@@ -96,8 +128,6 @@ const ProfilePage = () => {
   const handlePostCreated = (newPost) => {
     setUserPosts((prevPosts) => [newPost, ...prevPosts]);
   };
-
- 
 
   if (!user) {
     return <p>You must log in to view this page</p>;
@@ -125,7 +155,7 @@ const ProfilePage = () => {
             className={cx("upload-input")}
           />
           <button onClick={handleCoverClick} className={cx("custom-cover")}>
-            <IoIosCamera/>
+            <IoIosCamera />
           </button>
         </div>
 
@@ -148,9 +178,21 @@ const ProfilePage = () => {
             className={cx("upload-input")}
           />
           <button onClick={handleProfileClick} className={cx("custom-profile")}>
-            <IoIosCamera/>
+            <IoIosCamera />
           </button>
           <p className={cx("username")}>{userData?.username}</p>
+        </div>
+
+        {/* User Actions */}
+        <div>
+          {user?.id !== id && (
+            <button
+              className={cx("follow-button", { following: followings })}
+              onClick={handleFollowToggle}
+            >
+              {followings ? "Unfollow" : "Follow"}
+            </button>
+          )}
         </div>
 
         {/* User Posts */}
@@ -164,7 +206,6 @@ const ProfilePage = () => {
             ))}
           </ul>
         </div>
-        
       </div>
     </Layout>
   );

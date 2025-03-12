@@ -10,6 +10,9 @@ import {
   uploadSingle,
   updateProfilePicture,
   updateCoverPicture,
+  followUser,
+  unfollowUser,
+  updateIntroduce,
 } from "../controllers/authController";
 import multer from "multer";
 import path from "path";
@@ -25,5 +28,7 @@ router.get("/:id", getUserById);
 
 router.put("/profile-picture", verifyToken, uploadSingle, updateProfilePicture);
 router.put("/cover-picture", verifyToken, uploadSingle, updateCoverPicture);
-
+router.put("/follow/:id", verifyToken, followUser);
+router.put("/unfollow/:id", verifyToken, unfollowUser);
+router.put("/introduce", verifyToken, updateIntroduce);
 export default router;

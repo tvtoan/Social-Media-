@@ -30,8 +30,20 @@ const PostList = ({ userId }) => {
     await fetchPosts(); // Gọi lại API để lấy danh sách mới nhất
   };
 
-  const handlePostUpdated = useCallback((updatedPost) => {
-    setPosts(updatedPost);
+  const handlePostUpdated = useCallback((updatedPostOrFunction) => {
+    setPosts((prevPosts) => {
+      if (typeof updatedPostOrFunction === "function") {
+        return updatedPostOrFunction(prevPosts);
+      }
+
+      if (Array.isArray(updatedPostOrFunction)) {
+        return updatedPostOrFunction;
+      }
+
+      return prevPosts.map((post) =>
+        post._id === updatedPostOrFunction._id ? updatedPostOrFunction : post
+      );
+    });
   }, []);
 
   if (loading) return <div>Loading posts...</div>;

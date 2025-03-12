@@ -134,6 +134,64 @@ export const updateCoverPicture = async (imageFile) => {
   }
 };
 
+export const followUser = async (userId) => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axios.put(
+      `${API_URL}/follow/${userId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error following user", error);
+    throw error;
+  }
+};
+
+export const unfollowUser = async (userId) => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axios.put(
+      `${API_URL}/unfollow/${userId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error unfollowing user", error);
+    throw error;
+  }
+};
+
+export const updateIntroduce = async (introduce) => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axios.put(
+      `${API_URL}/introduce`,
+      { introduce },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating introduce", error);
+    throw error;
+  }
+};
+
 export const logout = async () => {
   try {
     await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });

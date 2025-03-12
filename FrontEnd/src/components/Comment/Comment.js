@@ -1,4 +1,6 @@
-import React, { useState, useCallback } from "react";
+"use client";
+
+import { useState, useCallback } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { addComment, deleteComment } from "../../services/commentService";
 import { MdDelete } from "react-icons/md";
@@ -8,6 +10,21 @@ import classNames from "classnames/bind";
 import defaultAvt from "../../img/default.jpg";
 
 const cx = classNames.bind(styles);
+
+// Helper function to safely format dates
+const safeFormatDate = (dateString) => {
+  if (!dateString) return "recently";
+
+  try {
+    const date = new Date(dateString);
+    // Check if date is valid
+    if (isNaN(date.getTime())) return "recently";
+    return formatDistanceToNow(date, { addSuffix: true });
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "recently";
+  }
+};
 
 const Comment = ({
   comment,
@@ -21,9 +38,10 @@ const Comment = ({
   const [isReplying, setIsReplying] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
 
-  const replies = allComments.filter((c) => c.parentId === comment._id);
-
-  console.log(comment);
+  // Make sure allComments is an array before filtering
+  const replies = Array.isArray(allComments)
+    ? allComments.filter((c) => c && c.parentId === comment._id)
+    : [];
 
   const handleAddReply = useCallback(
     async (e) => {
@@ -35,6 +53,8 @@ const Comment = ({
           comment: replyText,
           parentId: comment._id,
         });
+
+        // Make sure newReply has all required fields
         const replyWithUser = {
           ...newReply,
           userId: {
@@ -43,7 +63,13 @@ const Comment = ({
             profilePicture: user.profilePicture,
           },
         };
-        onCommentUpdated([replyWithUser, ...allComments]);
+
+        // Make sure we're adding to an array
+        const updatedComments = Array.isArray(allComments)
+          ? [replyWithUser, ...allComments]
+          : [replyWithUser];
+
+        onCommentUpdated(updatedComments);
         setReplyText("");
         setShowReplyForm(false);
       } catch (error) {
@@ -58,11 +84,20 @@ const Comment = ({
   const handleDeleteComment = useCallback(async () => {
     try {
       await deleteComment(comment._id);
-      onCommentUpdated(allComments.filter((c) => c._id !== comment._id));
+
+      // Make sure we're filtering an array
+      const updatedComments = Array.isArray(allComments)
+        ? allComments.filter((c) => c && c._id !== comment._id)
+        : [];
+
+      onCommentUpdated(updatedComments);
     } catch (error) {
       console.error("Failed to delete comment", error);
     }
   }, [comment._id, onCommentUpdated, allComments]);
+
+  // Guard against invalid comment data
+  if (!comment) return null;
 
   return (
     <li
@@ -72,11 +107,11 @@ const Comment = ({
       <div className={cx("comment-content")}>
         <img
           src={
-            comment.userId
-              ? `http://localhost:3001${comment.userId?.profilePicture}`
+            comment.userId && comment.userId.profilePicture
+              ? `http://localhost:3001${comment.userId.profilePicture}`
               : defaultAvt
           }
-          alt={`${comment.userId?.username}'s avatar`}
+          alt={`${comment.userId?.username || "Unknown"}'s avatar`}
           className={cx("avatar")}
         />
         <div className={cx("comment-body")}>
@@ -85,7 +120,7 @@ const Comment = ({
           </h5>
           <p className={cx("comment-text")}>{comment.comment}</p>
         </div>
-        {user && user._id === comment.userId?._id && (
+        {user && comment.userId && user._id === comment.userId._id && (
           <button onClick={handleDeleteComment} className={cx("delete-button")}>
             <MdDelete />
           </button>
@@ -93,9 +128,7 @@ const Comment = ({
       </div>
       <div className={cx("comment-actions")}>
         <span className={cx("comment-time")}>
-          {formatDistanceToNow(new Date(comment.createdAt), {
-            addSuffix: true,
-          })}
+          {safeFormatDate(comment.createdAt)}
         </span>
         <button
           onClick={() => setShowReplyForm(!showReplyForm)}

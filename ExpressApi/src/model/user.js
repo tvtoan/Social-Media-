@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     coverPicture: { type: String, default: "" },
     followers: { type: Array, default: [] },
     followings: { type: Array, default: [] },
+    introduce: { type: String, max: 200, default: "" },
   },
   { timestamps: true }
 );

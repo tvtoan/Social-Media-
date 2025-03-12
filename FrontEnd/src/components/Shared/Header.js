@@ -3,14 +3,12 @@ import styles from "./Header.module.scss";
 import classNames from "classnames/bind";
 import {
   FaUserFriends,
-  FaStore,
   FaFacebookMessenger,
   FaBell,
   FaSearch,
 } from "react-icons/fa";
 import { FaFacebookF } from "react-icons/fa6";
 import { PiVideoFill } from "react-icons/pi";
-import { MdOutlineGroup } from "react-icons/md";
 import { AiFillHome } from "react-icons/ai";
 
 import { getUserByUsername } from "../../services/authService";
@@ -32,7 +30,8 @@ const Header = () => {
   useEffect(() => {
     // Cập nhật trạng thái active khi URL thay đổi
     const currentPath = location.pathname;
-    const activeMenu = menuItems.find((item) => item.path === currentPath)?.name || "home";
+    const activeMenu =
+      menuItems.find((item) => item.path === currentPath)?.name || "home";
     setActive(activeMenu);
   }, [location]);
 
@@ -55,16 +54,16 @@ const Header = () => {
 
   const menuItems = [
     { name: "home", icon: <AiFillHome />, path: "/home" },
-    { name: "friend", icon: <FaUserFriends />, path: "/home" },
     { name: "video", icon: <PiVideoFill />, path: "/video" },
-    { name: "store", icon: <FaStore />, path: "/home" },
-    { name: "group", icon: <MdOutlineGroup />, path: "/inbox/:id" },
+    { name: "friend", icon: <FaUserFriends />, path: "/home" },
+    { name: "message", icon: <FaFacebookMessenger />, path: "/inbox/:id" },
+    { name: "notification", icon: <FaBell />, path: "/home" },
   ];
 
   return (
     <div className={cx("header")}>
       <div className={cx("header-left")}>
-        <FaFacebookF className={cx("header-logo")} />
+        <img src="images/logo.jpg" alt="" className={cx("img")} />
         <div className={cx("header-search")}>
           <FaSearch className={cx("header-icon")} style={{ padding: "10px" }} />
           <input
@@ -104,11 +103,6 @@ const Header = () => {
         ))}
       </div>
       <div className={cx("header-right")}>
-        <FaFacebookMessenger
-          className={cx("header-icon")}
-          onClick={() => navigate("/inbox/:id")}
-        />
-        <FaBell className={cx("header-icon")} />
         <img
           src={
             user?.profilePicture

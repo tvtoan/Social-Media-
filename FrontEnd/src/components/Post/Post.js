@@ -1,4 +1,6 @@
-import React, { useState, useCallback } from "react";
+"use client";
+
+import { useState, useCallback } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { deletePost } from "../../services/postService";
 import { addComment } from "../../services/commentService";
@@ -15,6 +17,21 @@ import defaultAvt from "../../img/default.jpg";
 
 const cx = classNames.bind(styles);
 
+// Helper function to safely format dates
+const safeFormatDate = (dateString) => {
+  if (!dateString) return "recently";
+
+  try {
+    const date = new Date(dateString);
+    // Check if date is valid
+    if (isNaN(date.getTime())) return "recently";
+    return formatDistanceToNow(date, { addSuffix: true });
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "recently";
+  }
+};
+
 const Post = ({ post: initialPost, onPostUpdated }) => {
   const { user } = useAuth();
   const [post, setPost] = useState(initialPost);
@@ -22,7 +39,6 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
   const [isCommenting, setIsCommenting] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
 
-  console.log(post._id);
   const handleLikeClick = () => {
     setIsLiked(!isLiked);
   };
@@ -30,11 +46,12 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
   const handleDeletePost = useCallback(async () => {
     try {
       await deletePost(post._id);
+      // Pass a function to onPostUpdated that filters out the deleted post
       onPostUpdated((prevPosts) => prevPosts.filter((p) => p._id !== post._id));
     } catch (error) {
       console.error("Failed to delete post", error);
     }
-  }, [post?._id, onPostUpdated]);
+  }, [post._id, onPostUpdated]);
 
   const handleAddComment = useCallback(
     async (e) => {
@@ -52,14 +69,21 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
             profilePicture: user.profilePicture,
           },
         };
-        setPost((prevPost) => ({
-          ...prevPost,
-          comments: [commentWithUser, ...(prevPost.comments || [])],
-        }));
-        onPostUpdated((prevPost) => ({
-          ...prevPost,
-          comments: [commentWithUser, ...(prevPost.comments || [])],
-        }));
+
+        // Create an updated post with the new comment
+        const updatedPost = {
+          ...post,
+          comments: Array.isArray(post.comments)
+            ? [commentWithUser, ...post.comments]
+            : [commentWithUser],
+        };
+
+        // Update local state
+        setPost(updatedPost);
+
+        // Pass the updated post to the parent component
+        onPostUpdated(updatedPost);
+
         setCommentText("");
       } catch (error) {
         console.error("Failed to add comment", error);
@@ -67,42 +91,48 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
         setIsCommenting(false);
       }
     },
-    [commentText, post._id, onPostUpdated, user]
+    [commentText, post, onPostUpdated, user]
   );
 
   const handleCommentUpdated = useCallback(
     (updatedComments) => {
-      setPost((prevPost) => ({
-        ...prevPost,
+      // Create an updated post with the updated comments
+      const updatedPost = {
+        ...post,
         comments: updatedComments,
-      }));
-      onPostUpdated((prevPost) => ({
-        ...prevPost,
-        comments: updatedComments,
-      }));
+      };
+
+      // Update local state
+      setPost(updatedPost);
+
+      // Pass the updated post to the parent component
+      onPostUpdated(updatedPost);
     },
-    [onPostUpdated]
+    [post, onPostUpdated]
   );
+
+  // Guard against invalid post data
+  if (!post) return null;
 
   return (
     <div className={cx("post")}>
       <div className={cx("user-info")}>
         <img
           src={
-            `http://localhost:3001${post.userId?.profilePicture}` || defaultAvt
+            post.userId?.profilePicture
+              ? `http://localhost:3001${post.userId.profilePicture}`
+              : defaultAvt
           }
-          alt={`${post.userId?.username}'s avatar`}
+          alt={`${post.userId?.username || "Unknown"}'s avatar`}
           className={cx("img")}
         />
         <div>
           <h3 className={cx("username")}>
             {post.userId?.username || "Unknown User"}
           </h3>
-          <p className={cx("post-time")}>
-            {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-          </p>
+          <p className={cx("post-time")}>{safeFormatDate(post.createdAt)}</p>
         </div>
-        {user && user._id === post.userId?._id && (
+        {user && post.userId && user._id === post.userId._id && (
           <button onClick={handleDeletePost} className={cx("delete-button")}>
             <FaDeleteLeft className={cx("delete-button")} />
           </button>
@@ -126,7 +156,9 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
         </div>
         <div className={cx("item-actions")}>
           <FaRegComment className={cx("button-icon")} />
-          <p>Comments ({post.comments?.length || 0})</p>
+          <p>
+            Comments ({Array.isArray(post.comments) ? post.comments.length : 0})
+          </p>
         </div>
         <div className={cx("item-actions")}>
           <IoIosShareAlt className={cx("button-icon")} />
@@ -134,7 +166,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
         </div>
       </div>
       <CommentList
-        comments={post.comments}
+        comments={Array.isArray(post.comments) ? post.comments : []}
         postId={post._id}
         onCommentUpdated={handleCommentUpdated}
       />
