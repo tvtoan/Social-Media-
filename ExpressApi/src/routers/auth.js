@@ -28,7 +28,7 @@ router.get("/:id", getUserById);
 
 router.put("/profile-picture", verifyToken, uploadSingle, updateProfilePicture);
 router.put("/cover-picture", verifyToken, uploadSingle, updateCoverPicture);
-router.put("/follow/:id", verifyToken, followUser);
-router.put("/unfollow/:id", verifyToken, unfollowUser);
+router.post("/follow/:id", verifyToken, followUser);
+router.delete("/unfollow/:id", verifyToken, unfollowUser);
 router.put("/introduce", verifyToken, updateIntroduce);
 export default router;

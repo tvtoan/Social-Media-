@@ -161,7 +161,7 @@ export const followUser = async (req, res) => {
     const userId = req.user.id;
     const followId = req.params.id;
 
-    if (user === followId) {
+    if (userId === followId) {
       return res.status(400).json({ message: "You can't follow yourself" });
     }
     const userToFollow = await User.findById(followId);
@@ -174,8 +174,12 @@ export const followUser = async (req, res) => {
     if (currentUser.followings.includes(followId)) {
       return res.status(400).json({ message: "You already follow this user" });
     }
-    await User.findByIdAndUpdate(userId, { $push: { followings: followId } });
-    await User.findByIdAndUpdate(followId, { $push: { followers: userId } });
+
+    currentUser.followings.push(followId);
+    await currentUser.save();
+
+    userToFollow.followers.push(userId);
+    await userToFollow.save();
     res.status(200).json({ message: "Follow success" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -188,7 +192,7 @@ export const unfollowUser = async (req, res) => {
     const userId = req.user.id;
     const unfollowId = req.params.id;
 
-    if (user === unfollowId) {
+    if (userId === unfollowId) {
       return res.status(400).json({ message: "You can't unfollow yourself" });
     }
     const userToUnfollow = await User.findById(unfollowId);
@@ -200,8 +204,16 @@ export const unfollowUser = async (req, res) => {
     if (!currentUser.followings.includes(unfollowId)) {
       return res.status(400).json({ message: "You don't follow this user" });
     }
-    await User.findByIdAndUpdate(userId, { $pull: { followings: unfollowId } });
-    await User.findByIdAndUpdate(unfollowId, { $pull: { followers: userId } });
+
+    currentUser.followings = currentUser.followings.filter(
+      (id) => id.toString() !== unfollowId
+    );
+    await currentUser.save();
+    userToUnfollow.followers = userToUnfollow.followers.filter(
+      (id) => id.toString() !== userId
+    );
+    await userToUnfollow.save();
+
     res.status(200).json({ message: "Unfollow success" });
   } catch (error) {
     res.status(500).json({ message: error.message });
