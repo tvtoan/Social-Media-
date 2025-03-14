@@ -137,7 +137,7 @@ export const updateCoverPicture = async (imageFile) => {
 export const followUser = async (userId) => {
   const token = localStorage.getItem("token");
   try {
-    const response = await axios.put(
+    const response = await axios.post(
       `${API_URL}/follow/${userId}`,
       {},
       {
@@ -156,15 +156,11 @@ export const followUser = async (userId) => {
 export const unfollowUser = async (userId) => {
   const token = localStorage.getItem("token");
   try {
-    const response = await axios.put(
-      `${API_URL}/unfollow/${userId}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.delete(`${API_URL}/unfollow/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error unfollowing user", error);

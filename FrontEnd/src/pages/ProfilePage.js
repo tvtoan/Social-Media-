@@ -20,11 +20,12 @@ import defaultAvt from "../img/default.jpg";
 const cx = classNames.bind(styles);
 
 const ProfilePage = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
   const { userId: id } = useParams();
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const [followings, setFollowings] = useState(null);
+
   const navigate = useNavigate();
   console.log("user", user);
 
@@ -50,7 +51,7 @@ const ProfilePage = () => {
   }, [id, user]);
 
   // get posts list
-  const fetchUserPosts = async () => {
+  const fetchUserPosts = useCallback(async () => {
     try {
       if (!id) return;
       const posts = await getPostsByUserId(id);
@@ -58,7 +59,7 @@ const ProfilePage = () => {
     } catch (error) {
       console.error("Error fetching user posts:", error);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (user) {
@@ -67,30 +68,51 @@ const ProfilePage = () => {
     }
   }, [id, user, fetchUserData, fetchUserPosts]);
 
-  const handleFollowToggle = async () => {
+  const handleFollow = async () => {
     if (id === user?._id) {
       console.error("Bạn không thể tự follow chính mình.");
       return;
     }
     try {
-      let updateFollowing;
-      if (followings) {
-        await unfollowUser(id);
-        updateFollowing = false;
-      } else {
-        await followUser(id);
-        updateFollowing = true;
-      }
-      setFollowings(updateFollowing);
+      await followUser(id);
+      setFollowings(true);
+
+      // Cập nhật state ngay lập tức
       setUserData((prev) => ({
         ...prev,
-        followers: updateFollowing
-          ? [...prev.followers, user?._id]
-          : prev.followers.filter((followerId) => followerId !== user?._id),
+        followers: [...prev.followers, user._id],
       }));
+
+      // Cập nhật user của chính mình (nếu cần)
+      refreshUser();
     } catch (error) {
       console.error("Error following user:", error);
     }
+  };
+
+  const handleUnfollow = async () => {
+    if (id === user?._id) {
+      console.error("Bạn không thể tự unfollow chính mình.");
+      return;
+    }
+    try {
+      await unfollowUser(id);
+      setFollowings(false);
+
+      // Cập nhật state ngay lập tức
+      setUserData((prev) => ({
+        ...prev,
+        followers: prev.followers.filter((follower) => follower !== user._id),
+      }));
+
+      refreshUser();
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+    }
+  };
+
+  const handleToggle = () => {
+    followings ? handleUnfollow() : handleFollow();
   };
 
   const handleProfileClick = () => {
@@ -188,7 +210,7 @@ const ProfilePage = () => {
           {user?.id !== id && (
             <button
               className={cx("follow-button", { following: followings })}
-              onClick={handleFollowToggle}
+              onClick={handleToggle}
             >
               {followings ? "Unfollow" : "Follow"}
             </button>
