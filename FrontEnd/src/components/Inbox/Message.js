@@ -30,6 +30,7 @@ const Message = ({ message, isCurrentUser }) => {
         <p className={cx("message-text")}>{message.text}</p>
         <img
           src={`http://localhost:3001${message.senderId?.profilePicture}`}
+          alt="img"
           className={cx("img")}
         />
         {showTime && (

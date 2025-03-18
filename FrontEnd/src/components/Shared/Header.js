@@ -7,7 +7,6 @@ import {
   FaBell,
   FaSearch,
 } from "react-icons/fa";
-import { FaFacebookF } from "react-icons/fa6";
 import { PiVideoFill } from "react-icons/pi";
 import { AiFillHome } from "react-icons/ai";
 
@@ -17,6 +16,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import defaultAvt from "../../img/default.jpg";
 
 const cx = classNames.bind(styles);
+
+const menuItems = [
+  { name: "home", icon: <AiFillHome />, path: "/home" },
+  { name: "video", icon: <PiVideoFill />, path: "/video" },
+  { name: "friend", icon: <FaUserFriends />, path: "/home" },
+  { name: "message", icon: <FaFacebookMessenger />, path: "/inbox/:id" },
+  { name: "notification", icon: <FaBell />, path: "/home" },
+];
 
 const Header = () => {
   const { user } = useAuth();
@@ -52,18 +59,10 @@ const Header = () => {
     }
   };
 
-  const menuItems = [
-    { name: "home", icon: <AiFillHome />, path: "/home" },
-    { name: "video", icon: <PiVideoFill />, path: "/video" },
-    { name: "friend", icon: <FaUserFriends />, path: "/home" },
-    { name: "message", icon: <FaFacebookMessenger />, path: "/inbox/:id" },
-    { name: "notification", icon: <FaBell />, path: "/home" },
-  ];
-
   return (
     <div className={cx("header")}>
       <div className={cx("header-left")}>
-        <img src="images/logo.jpg" alt="" className={cx("img")} />
+        <img src="/images/logo.jpg" alt="logo" className={cx("img")} />
         <div className={cx("header-search")}>
           <FaSearch className={cx("header-icon")} style={{ padding: "10px" }} />
           <input
@@ -82,6 +81,7 @@ const Header = () => {
                         ? `http://localhost:3001${user?.profilePicture}`
                         : defaultAvt
                     }
+                    alt="profile"
                     className={cx("img")}
                   />
                   {user.username}
@@ -109,6 +109,7 @@ const Header = () => {
               ? `http://localhost:3001${user?.profilePicture}`
               : defaultAvt
           }
+          alt="profile"
           className={cx("img")}
           onClick={() => navigate(`/profile/${user?._id}`)}
         />

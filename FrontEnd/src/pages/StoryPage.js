@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { deleteStory, getStoryById } from "../services/storyService";
 import styles from "./Story.module.scss";
@@ -6,8 +6,8 @@ import classNames from "classnames/bind";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import defaultAvt from "../img/default.jpg";
 import { useAuth } from "../context/AuthContext";
-import {RiCloseCircleFill} from 'react-icons/ri';
-import {MdDelete} from 'react-icons/md';
+import { RiCloseCircleFill } from "react-icons/ri";
+import { MdDelete } from "react-icons/md";
 
 const cx = classNames.bind(styles);
 
@@ -19,21 +19,20 @@ const formatStoryDate = (dateString) => {
 
 const StoryPage = () => {
   const { id } = useParams();
-  const {user, loading} = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [story, setStory] = useState({});
   const [error, setError] = useState("");
 
   const timeAgo = formatStoryDate(story.createdAt);
 
-  
   useEffect(() => {
     if (!loading && !user) {
-      navigate("/"); 
+      navigate("/");
     }
   }, [user, loading, navigate]);
 
-  const fetchStory = async () => {
+  const fetchStory = useCallback(async () => {
     try {
       const data = await getStoryById(id);
       setStory(data);
@@ -41,10 +40,10 @@ const StoryPage = () => {
       console.error("Error fetching story details:", error);
       setError("Story not found");
     }
-  };
+  }, [id]);
   useEffect(() => {
     fetchStory();
-  }, [id]);
+  }, [id, fetchStory]);
 
   const handleDelete = async () => {
     try {
@@ -71,20 +70,21 @@ const StoryPage = () => {
                   ? `http://localhost:3001${story.userId.profilePicture}`
                   : defaultAvt
               }
+              alt="avt"
               className={cx("img")}
             />
             <p>{story.userId.username}</p>
           </div>
           <p className={cx("time-ago")}>{timeAgo}</p>
           <button onClick={handleDelete} className={cx("delete-button")}>
-            <MdDelete/>
+            <MdDelete />
           </button>
           <button
             className={cx("close-button")}
             onClick={() => navigate("/home")}
             aria-label="Close story"
           >
-            <RiCloseCircleFill/>
+            <RiCloseCircleFill />
           </button>
 
           {story.image && (

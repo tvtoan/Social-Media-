@@ -1,13 +1,9 @@
-import React, { useEffect, useId, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Video from "./Video";
 import CreateVideo from "./CreateVideo";
-import  { getVideos } from "../../services/videoService";
-import styles from './VideoList.module.scss';
-import classNames from "classnames/bind";
+import { getVideos } from "../../services/videoService";
 
-const cx = classNames.bind(styles);
-
-const VideoList = ({userId}) => {
+const VideoList = ({ userId }) => {
   const [videos, setVideos] = useState([]);
 
   const fetchVideos = async () => {
@@ -23,22 +19,20 @@ const VideoList = ({userId}) => {
     fetchVideos();
   }, []);
 
- 
-
   const handleVideoCreated = (newVideo) => {
     setVideos((prevVideo) => [newVideo, ...prevVideo]);
     fetchVideos();
-  }
+  };
 
   return (
-    <div className = {cx('video-list')}> 
-      <CreateVideo onVideoCreated = {handleVideoCreated} userId = {userId} />
+    <div>
+      <CreateVideo onVideoCreated={handleVideoCreated} userId={userId} />
       {videos.length === 0 ? (
         <p>No videos available</p>
       ) : (
         <ul>
           {videos.map((video) => (
-            <li key={video._id}>
+            <li key={video._id} style={{ listStyle: "none" }}>
               <Video video={video} />
             </li>
           ))}

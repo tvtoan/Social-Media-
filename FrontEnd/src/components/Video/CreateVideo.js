@@ -2,10 +2,10 @@ import React, { useRef, useState } from "react";
 import styles from "./CreateVideo.module.scss";
 import classNames from "classnames/bind";
 import { createVideo } from "../../services/videoService";
-import {PiUploadSimple} from 'react-icons/pi';
+import { BsFillSendFill } from "react-icons/bs";
+import { MdCloudUpload } from "react-icons/md";
 import { useAuth } from "../../context/AuthContext";
-import defaultAvt from '../../img/default.jpg';
-
+import defaultAvt from "../../img/default.jpg";
 
 const cx = classNames.bind(styles);
 
@@ -71,6 +71,7 @@ const CreateVideo = ({ onVideoCreated, userId }) => {
               ? `http://localhost:3001${user.profilePicture}`
               : defaultAvt
           }
+          alt="profile"
           className={cx("img")}
         />
         <textarea
@@ -100,14 +101,14 @@ const CreateVideo = ({ onVideoCreated, userId }) => {
           onClick={handleFileClick}
           className={cx("custom-file-upload")}
         >
-          <PiUploadSimple />
+          <MdCloudUpload className={cx("icon-upload")} />{" "}
         </button>
         <button
           type="submit"
           onClick={handleSubmit}
           className={cx("form-post")}
         >
-          Post Video
+          <BsFillSendFill className={cx("icon-send")} />
         </button>
       </div>
     </form>

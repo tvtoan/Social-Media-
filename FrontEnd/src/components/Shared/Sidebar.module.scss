@@ -1,6 +1,6 @@
 .sidebar {
   width: 100%;
-  max-width: 350px;
+  max-width: 500px;
   min-height: 100vh;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   background-color: #1c1e21;
@@ -8,11 +8,73 @@
   top: 60px;
   left: 0;
   padding-top: 20px;
-  z-index: 100;
 
   border-right: 0.5px solid #444242;
 }
 
+.profile {
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  margin-left: 20px;
+  margin-top: 20px;
+  background-color: #2a2a2a;
+  position: relative;
+  border-radius: 10px;
+  height: 550px;
+}
+.cover-picture {
+  width: 100%;
+  height: auto;
+}
+.profile-picture {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  position: absolute;
+  top: 35%;
+}
+
+.username {
+  position: absolute;
+  top: 57%;
+  font-size: 25px;
+  font-weight: 600;
+}
+.follower {
+  position: absolute;
+  top: 55%;
+  font-size: 20px;
+  font-weight: 600;
+  left: 6%;
+}
+.following {
+  position: absolute;
+  top: 55%;
+  font-size: 20px;
+  font-weight: 600;
+  right: 6%;
+}
+.introduce {
+  position: absolute;
+  top: 75%;
+  font-size: 20px;
+  font-weight: 600;
+}
+.button {
+  position: absolute;
+  top: 87%;
+  font-size: 14px;
+  background: linear-gradient(to bottom, #474747, #504d4d);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  width: 40%;
+  cursor: pointer;
+}
 .sidebar ul {
   list-style: none;
   padding: 0;
@@ -47,16 +109,6 @@
 .title {
   text-decoration: none;
   color: white;
-}
-
-.cover-picture {
-  width: 50vh;
-  height: auto;
-}
-.profile-picture {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
 }
 
 /* Make links responsive on smaller screens */

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./InboxPage.module.scss";
@@ -24,19 +24,20 @@ const InboxPage = () => {
     }
   }, [user, loading, navigate]);
 
-  const fetchReceiverData = async () => {
+  const fetchReceiverData = useCallback(async () => {
+    if (!receiverId || receiverId === ":id") return;
     try {
       const receiverData = await getUserById(receiverId);
       setReceiver(receiverData);
     } catch (error) {
       console.error("Error fetching receiver data", error);
     }
-  };
+  }, [receiverId]);
   useEffect(() => {
     if (receiverId) {
       fetchReceiverData();
     }
-  }, [receiverId]);
+  }, [receiverId, fetchReceiverData]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -66,6 +67,7 @@ const InboxPage = () => {
                       ? `http://localhost:3001${receiver.profilePicture}`
                       : defaultAvt
                   }
+                  alt="avt"
                   onClick={handleAvatarClick}
                 />
                 <p>{receiver.username}</p>

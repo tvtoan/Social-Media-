@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from "./Sidebar.module.scss";
 import classNames from "classnames/bind";
 import { useAuth } from "../../context/AuthContext";
@@ -9,7 +9,6 @@ const cx = classNames.bind(styles);
 const Sidebar = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  console.log(user.introduce);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -23,17 +22,6 @@ const Sidebar = () => {
   return (
     <aside className={cx("sidebar")}>
       <ul>
-        <li style={{ display: "flex", marginLeft: "10px" }}>
-          <img
-            src={
-              user.profilePicture
-                ? `http://localhost:3001${user?.profilePicture}`
-                : defaultAvt
-            }
-            className={cx("img")}
-          />
-          <p className={cx("username")}>{user.username}</p>
-        </li>
         <div className={cx("profile")}>
           <img
             src={
@@ -53,11 +41,20 @@ const Sidebar = () => {
             alt="profilePicture"
             className={cx("profile-picture")}
           />
-          <div>{user.username}</div>
-          <div>{user.followers.length} Followers</div>
-          <div>{user.followings.length} Followings</div>
-          <div>{user.introduce} Introduce</div>
-          <button>My Profile</button>
+          <div className={cx("username")}>{user.username}</div>
+          <div className={cx("follower")}>
+            {user.followers.length} Followers
+          </div>
+          <div className={cx("following")}>
+            {user.followings.length} Followings
+          </div>
+          <div className={cx("introduce")}>{user.introduce} Introduce</div>
+          <button
+            className={cx("button")}
+            onClick={() => navigate(`/profile/${user?._id}`)}
+          >
+            My Profile
+          </button>
         </div>
       </ul>
     </aside>

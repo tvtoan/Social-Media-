@@ -2,7 +2,6 @@ import User from "../model/user";
 import bcrypt from "bcryptjs/dist/bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import user from "../model/user";
 import multer from "multer";
 import path from "path";
 

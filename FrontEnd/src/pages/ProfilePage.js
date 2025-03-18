@@ -27,7 +27,6 @@ const ProfilePage = () => {
   const [followings, setFollowings] = useState(null);
 
   const navigate = useNavigate();
-  console.log("user", user);
 
   const profilePictureRef = useRef(null);
   const coverPictureRef = useRef(null);

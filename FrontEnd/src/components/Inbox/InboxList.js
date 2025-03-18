@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createMessage, getMessages } from "../../services/inboxService";
 
 import Message from "./Message";
@@ -12,14 +12,14 @@ const InboxList = ({ receiverId, currentUser }) => {
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef(null);
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
       const data = await getMessages(receiverId);
       setMessages(data);
     } catch (error) {
       console.error("Error fetching messages: ", error);
     }
-  };
+  }, [receiverId]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !receiverId) return;
@@ -31,7 +31,7 @@ const InboxList = ({ receiverId, currentUser }) => {
       const messageWithSender = {
         ...sendMessage,
         senderId: currentUser,
-      }
+      };
 
       // update list message after send message
       setMessages((prevMessages) => [...prevMessages, messageWithSender]);
@@ -43,18 +43,21 @@ const InboxList = ({ receiverId, currentUser }) => {
   };
 
   const handleKeyPress = (e) => {
-    if(e.key === "Enter") {
+    if (e.key === "Enter") {
       handleSendMessage();
     }
-  }
+  };
 
   useEffect(() => {
     if (receiverId) fetchMessages(); // get messages from receiver
-  }, [receiverId]);
+  }, [receiverId, fetchMessages]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({behavior: "smooth", block: "end"})
-  }, [messages])
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+  }, [messages]);
 
   return (
     <div className={cx("inbox-list")}>
@@ -64,15 +67,14 @@ const InboxList = ({ receiverId, currentUser }) => {
         ) : (
           <ul>
             {messages.map((message) => (
-              <li key = {message._id}  >
+              <li key={message._id}>
                 <Message
                   key={message._id}
                   message={message}
                   isCurrentUser={message.senderId._id === currentUser._id}
                 />
-                <div ref={messagesEndRef}/>
-              </li >
-              
+                <div ref={messagesEndRef} />
+              </li>
             ))}
           </ul>
         )}
@@ -88,11 +90,10 @@ const InboxList = ({ receiverId, currentUser }) => {
           onKeyDown={handleKeyPress}
         />
 
-        <button  onClick={handleSendMessage} className={cx("send-button")}>
+        <button onClick={handleSendMessage} className={cx("send-button")}>
           Send
         </button>
       </div>
-      
     </div>
   );
 };

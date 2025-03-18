@@ -2,7 +2,8 @@ import React, { useRef, useState } from "react";
 import { createStory } from "../../services/storyService";
 import styles from "./CreateStory.module.scss";
 import classNames from "classnames/bind";
-import {PiUploadSimple} from 'react-icons/pi';
+import { MdCloudUpload } from "react-icons/md";
+import { BsFillSendFill } from "react-icons/bs";
 
 const cx = classNames.bind(styles);
 
@@ -71,7 +72,7 @@ const CreateStory = ({ onStoryCreated, userId }) => {
         onClick={handleFileClick}
         className={cx("custom-file-upload")}
       >
-        <PiUploadSimple />
+        <MdCloudUpload className={cx("icon-upload")} />{" "}
       </button>
       {preview && (
         <img src={preview} alt="Preview" className={cx("form-preview")} />
@@ -94,7 +95,7 @@ const CreateStory = ({ onStoryCreated, userId }) => {
       />
 
       <button type="submit" className={cx("form-button")}>
-        Post Story
+        Post Story <BsFillSendFill className={cx("icon-send")} />
       </button>
     </form>
   );

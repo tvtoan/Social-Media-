@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getUsers } from "../../services/authService";
 import styles from "./UserList.module.scss";
 import classNames from "classnames/bind";
-import defaultAvt from '../../img/default.jpg';
+import defaultAvt from "../../img/default.jpg";
 const cx = classNames.bind(styles);
 
 const UserList = () => {
@@ -21,14 +21,20 @@ const UserList = () => {
     fetchUsers();
   }, []);
 
-
   return (
     <div className={cx("user-list")}>
       {users.map((user) => (
         <div key={user._id} className={cx("user-item")}>
           <Link to={`/inbox/${user._id}`}>
             <div className={cx("user-avatar")}>
-              <img src={user.profilePicture?`http://localhost:3001${user.profilePicture}`:defaultAvt} />
+              <img
+                src={
+                  user.profilePicture
+                    ? `http://localhost:3001${user.profilePicture}`
+                    : defaultAvt
+                }
+                alt="profile"
+              />
             </div>
             <div className={cx("user-name")}>{user.username}</div>
           </Link>
