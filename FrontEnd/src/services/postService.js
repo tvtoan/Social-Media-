@@ -77,6 +77,24 @@ export const getPostsByUserId = async (userId) => {
   }
 };
 
+export const getPostByMood = async (mood) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axiosInstance.get(`/mood/${mood}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error fetching posts with mood: ${mood}`,
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
+
 export const deletePost = async (postId) => {
   try {
     const token = localStorage.getItem("token");

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { login } from "../../services/authService";
+import { googleAuth, login } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.scss";
 import classNames from "classnames/bind";
@@ -27,6 +27,15 @@ const Login = () => {
           : "login failed, please try again."
       );
       console.log("Login failed", error);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await googleAuth(); // Chuyển hướng đến /api/auth/google
+    } catch (error) {
+      setError("Đăng nhập bằng Google thất bại, vui lòng thử lại.");
+      console.log("Google login failed", error);
     }
   };
 
@@ -75,6 +84,31 @@ const Login = () => {
           </button>
 
           <div className={cx("line")}></div>
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className={cx("google-login-button")}
+            style={{
+              backgroundColor: "#fff",
+              color: "#000",
+              border: "1px solid #ccc",
+              padding: "10px",
+              margin: "10px 0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+              cursor: "pointer",
+              borderRadius: "5px",
+            }}
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google logo"
+              style={{ width: "20px", height: "20px" }}
+            />
+            Đăng nhập bằng Google
+          </button>
           <div
             style={{
               display: "flex",

@@ -1,4 +1,4 @@
-import mongoose  from "mongoose";
+import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
   {
@@ -9,8 +9,12 @@ const postSchema = new mongoose.Schema(
     },
     description: { type: String, max: 500 },
     image: { type: String },
-    likes: { type: Array, default: [] },
-    
+    mood: {
+      type: String,
+      enum: ["happy", "sad", "angry", "excited", "neutral"],
+      default: "neutral",
+    },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

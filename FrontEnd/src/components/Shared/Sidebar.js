@@ -48,7 +48,9 @@ const Sidebar = () => {
           <div className={cx("following")}>
             {user.followings.length} Followings
           </div>
-          <div className={cx("introduce")}>{user.introduce} Introduce</div>
+          <div className={cx("introduce")}>
+            {user.introduce} Lao động hết mình, May mắn sẽ tìm đến
+          </div>
           <button
             className={cx("button")}
             onClick={() => navigate(`/profile/${user?._id}`)}

@@ -7,7 +7,6 @@ import videoRouter from "./routers/video";
 import commentRouter from "./routers/comment";
 import { connectDb } from "./config/db";
 import dotenv from "dotenv";
-
 import cors from "cors";
 
 // config for dotenv
@@ -45,7 +44,7 @@ app.use("/api/comments", commentRouter);
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
-  console.log(` Backend server is running on http://localhost:${port}`);
+  console.log(`Backend server is running on http://localhost:${port}`);
 });
 
 export const viteNodeApp = app;

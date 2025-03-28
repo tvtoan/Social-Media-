@@ -2,6 +2,36 @@ import axios from "axios";
 
 const API_URL = "http://localhost:3001/api/auth";
 
+export const googleAuth = async () => {
+  try {
+    // Chuyển hướng người dùng đến endpoint /api/auth/google
+    window.location.href = `${API_URL}/google`;
+  } catch (error) {
+    console.error("Google Authentication failed", error.message);
+    throw error;
+  }
+};
+
+// Hàm xử lý callback từ Google OAuth (sẽ được gọi từ AuthCallback component)
+export const handleGoogleCallback = async () => {
+  try {
+    // Lấy token và points từ query parameters trong URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const points = params.get("points");
+
+    if (!token) {
+      throw new Error("No token found in callback URL");
+    }
+
+    // Lưu token vào localStorage
+    localStorage.setItem("token", token);
+    return { token, points };
+  } catch (error) {
+    console.error("Error handling Google callback", error.message);
+    throw error;
+  }
+};
 export const register = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/register`, userData);
@@ -38,6 +68,27 @@ export const login = async (email, password) => {
       "Login failed",
       error.response ? error.response.data : error.message
     );
+    throw error;
+  }
+};
+
+export const logout = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axios.post(
+      `${API_URL}/logout`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true, // xoá cookie nếu có
+      }
+    );
+    localStorage.removeItem("token");
+    return response.data;
+  } catch (error) {
+    console.error("Đăng xuất thất bại", error.response?.data || error.message);
     throw error;
   }
 };
@@ -184,16 +235,6 @@ export const updateIntroduce = async (introduce) => {
     return response.data;
   } catch (error) {
     console.error("Error updating introduce", error);
-    throw error;
-  }
-};
-
-export const logout = async () => {
-  try {
-    await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
-    localStorage.removeItem("token");
-  } catch (error) {
-    console.error("Logout failed", error.response?.data || error.message);
     throw error;
   }
 };

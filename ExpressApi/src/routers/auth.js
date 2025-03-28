@@ -13,6 +13,9 @@ import {
   followUser,
   unfollowUser,
   updateIntroduce,
+  googleAuth,
+  googleCallback,
+  logout,
 } from "../controllers/authController";
 import multer from "multer";
 import path from "path";
@@ -21,6 +24,9 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
+router.post("/logout", verifyToken, logout);
+router.get("/google", googleAuth);
+router.get("/google/callback", googleCallback);
 router.get("/users", getAllUsers);
 router.get("/current", verifyToken, getCurrentUser);
 router.get("/user", getUserByUsername);

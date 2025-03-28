@@ -8,9 +8,9 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import { PiVideoFill } from "react-icons/pi";
-import { AiFillHome } from "react-icons/ai";
+import { AiFillHome, AiOutlineLogout } from "react-icons/ai";
 
-import { getUserByUsername } from "../../services/authService";
+import { getUserByUsername, logout } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import defaultAvt from "../../img/default.jpg";
@@ -33,6 +33,19 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [active, setActive] = useState("home");
+
+  const handleLogout = async () => {
+    try {
+      const confirmLogout = window.confirm("Bạn có muốn đăng xuất không?");
+      if (!confirmLogout) return;
+      await logout();
+      alert("Đăng xuất thành công!");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert(`Đăng xuất thát bại: ${error.message}`);
+    }
+  };
 
   useEffect(() => {
     // Cập nhật trạng thái active khi URL thay đổi
@@ -113,6 +126,7 @@ const Header = () => {
           className={cx("img")}
           onClick={() => navigate(`/profile/${user?._id}`)}
         />
+        <AiOutlineLogout onClick={handleLogout} />
       </div>
     </div>
   );

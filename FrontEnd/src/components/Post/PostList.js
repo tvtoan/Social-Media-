@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { getPosts } from "../../services/postService";
+import { getPostByMood, getPosts } from "../../services/postService";
 import Post from "./Post";
 import CreatePost from "./CreatePost";
 
@@ -7,6 +7,22 @@ const PostList = ({ userId }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const fetchPostsByMood = useCallback(async () => {
+    try {
+      setLoading(true);
+      const moodPosts = await getPostByMood("natural");
+      console.log(moodPosts);
+    } catch (error) {
+      console.error("Error fetching posts by mood", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPostsByMood();
+  }, [fetchPostsByMood]);
 
   const fetchPosts = useCallback(async () => {
     try {

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs/dist/bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import multer from "multer";
-import path from "path";
+import { OAuth2Client } from "google-auth-library";
 
 dotenv.config();
 
@@ -29,7 +29,16 @@ export const login = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res
+        .status(400)
+        .json({ message: "Thông tin đăng nhập chưa chính xác" });
+    }
+
+    const today = new Date().toDateString();
+    if (!user.lastLogin || new Date(user.lastLogin).toDateString() !== today) {
+      user.points += 5;
+      user.lastLogin = new Date();
+      await user.save();
     }
 
     const token = jwt.sign(
@@ -37,12 +46,106 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "8h" }
     );
-    res.status(200).json({ token });
+    res.status(200).json({ token, points: user.points });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+const googleClient = new OAuth2Client({
+  clientId: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  redirectUri: process.env.GOOGLE_REDIRECT_URI,
+});
+
+export const logout = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(400).json({ message: "Không tìm thấy token" });
+    }
+
+    try {
+      jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      res.status(401).json({ message: "Token Không hợp lệ" });
+    }
+    if (req.user?.id) {
+      await User.findByIdAndUpdate(req.user.id, {
+        lastLogout: new Date(),
+      });
+    }
+    res.status(200).json({
+      message: "Đăng xuất thành công",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Start Google OAuth flow
+export const googleAuth = async (req, res) => {
+  const authUrl = googleClient.generateAuthUrl({
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+    ],
+  });
+  res.redirect(authUrl);
+};
+
+// Google OAuth callback
+export const googleCallback = async (req, res) => {
+  try {
+    const { code } = req.query;
+    const { tokens } = await googleClient.getToken(code);
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const { email, sub: googleId, name } = ticket.getPayload();
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create new user if doesn't exist
+      user = new User({
+        username: name || email.split("@")[0], // Use name or email prefix as username
+        email,
+        googleId,
+        authProvider: "google",
+      });
+    } else if (!user.googleId) {
+      // Link existing account with Google
+      user.googleId = googleId;
+      user.authProvider = "google";
+    }
+
+    const today = new Date().toDateString();
+    if (!user.lastLogin || new Date(user.lastLogin).toDateString() !== today) {
+      user.points += 5;
+      user.lastLogin = new Date();
+    }
+
+    await user.save();
+
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" }
+    );
+
+    // Redirect to frontend with tokenz`
+    res.redirect(
+      `http://localhost:3000/auth/callback?token=${token}&points=${user.points}`
+    );
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password");

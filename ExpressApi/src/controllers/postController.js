@@ -1,5 +1,6 @@
 import Post from "../model/post.js";
 import Comment from "../model/comment.js";
+import User from "../model/user.js";
 
 export const createPost = async (req, res) => {
   try {
@@ -11,6 +12,9 @@ export const createPost = async (req, res) => {
     });
 
     const savedPost = await newPost.save();
+
+    // + 10 points cho user
+    await User.findByIdAndUpdate(req.user.id, { $inc: { points: 10 } });
 
     res.status(201).json(savedPost);
   } catch (error) {
@@ -24,8 +28,10 @@ export const getPost = async (req, res) => {
       "userId",
       "username profilePicture"
     );
-    const comments = await Comment.find({postId: req.params.id}).populate('userId','username profilePicture').sort({createAt: -1})
-    res.status(200).json({...post.toObject(), comments});
+    const comments = await Comment.find({ postId: req.params.id })
+      .populate("userId", "username profilePicture")
+      .sort({ createAt: -1 });
+    res.status(200).json({ ...post.toObject(), comments });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -33,14 +39,18 @@ export const getPost = async (req, res) => {
 
 export const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find()
-      .populate("userId", "username profilePicture");
-      const postWithComments = await Promise.all(posts.map(async(post) => {
-        const comments = await Comment.find({postId: post._id})
-        .populate('userId', 'username profilePicture')
-        .sort({createAt: -1});
-        return {...post.toObject(), comments};
-      }))
+    const posts = await Post.find().populate(
+      "userId",
+      "username profilePicture"
+    );
+    const postWithComments = await Promise.all(
+      posts.map(async (post) => {
+        const comments = await Comment.find({ postId: post._id })
+          .populate("userId", "username profilePicture")
+          .sort({ createAt: -1 });
+        return { ...post.toObject(), comments };
+      })
+    );
     res.status(200).json(postWithComments);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -49,14 +59,41 @@ export const getPosts = async (req, res) => {
 
 export const getPostsByUserId = async (req, res) => {
   try {
-    const posts = await Post.find({ userId: req.params.userId })
-      .populate("userId", "username profilePicture");
-    const postWithComments = await Promise.all(posts.map(async(post) => {
-      const comments = await Comment.find({postId: post._id})
-        .populate('userId', 'username profilePicture')
-        .sort({createAt: -1});
-        return {...post.toObject(), comments}
-    }))
+    const posts = await Post.find({ userId: req.params.userId }).populate(
+      "userId",
+      "username profilePicture"
+    );
+    const postWithComments = await Promise.all(
+      posts.map(async (post) => {
+        const comments = await Comment.find({ postId: post._id })
+          .populate("userId", "username profilePicture")
+          .sort({ createAt: -1 });
+        return { ...post.toObject(), comments };
+      })
+    );
+    res.status(200).json(postWithComments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getPostByMood = async (req, res) => {
+  try {
+    const { mood } = req.params;
+    const filter = mood === "natural" ? {} : { mood };
+
+    const posts = await Post.find(filter).populate(
+      "userId",
+      "username profilePicture"
+    );
+    const postWithComments = await Promise.all(
+      posts.map(async (post) => {
+        const comments = await Comment.find({ postId: post._id })
+          .populate("userId", "username profilePicture")
+          .sort({ createAt: -1 });
+        return { ...post.toObject(), comments };
+      })
+    );
     res.status(200).json(postWithComments);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -72,7 +109,7 @@ export const deletePost = async (req, res) => {
     }
     if (post.userId.toString() === req.user.id) {
       await post.deleteOne();
-      await Comment.deleteMany({postId: req.params.id});
+      await Comment.deleteMany({ postId: req.params.id });
       res.status(200).json({ message: "Post deleted" });
     } else {
       res.status(403).json({ message: "You can delete only your post" });
