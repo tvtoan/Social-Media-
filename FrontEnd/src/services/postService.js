@@ -109,3 +109,38 @@ export const deletePost = async (postId) => {
     throw error;
   }
 };
+
+export const likePost = async (postId) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axiosInstance.post(`like/${postId}`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error liking post",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};
+export const unLikePost = async (postId) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axiosInstance.post(`/unlike/${postId}`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error unliking post",
+      error.response ? error.response.data : error.message
+    );
+    throw error;
+  }
+};

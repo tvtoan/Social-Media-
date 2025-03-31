@@ -46,7 +46,13 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "8h" }
     );
-    res.status(200).json({ token, points: user.points });
+    res.status(200).json({
+      token,
+      points: user.points,
+      message: "Đăng nhập thành công! Hôm nay bạn cảm thấy thế nào?",
+      moodOptions: ["happy", "sad", "angry", "excited", "neutral"],
+      currentMood: user.currentMood || "neutral",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -117,6 +123,7 @@ export const googleCallback = async (req, res) => {
         email,
         googleId,
         authProvider: "google",
+        currentMood: "neutral",
       });
     } else if (!user.googleId) {
       // Link existing account with Google
@@ -146,6 +153,26 @@ export const googleCallback = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const updateMood = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { mood } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User không tồn tại" });
+    user.currentMood = mood || "neutral";
+    await user.save();
+
+    res.status(200).json({
+      message: "Cập nhật cảm xúc thành công",
+      currentMood: user.currentMood,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password");

@@ -1,8 +1,6 @@
-"use client";
-
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { deletePost } from "../../services/postService";
+import { deletePost, likePost, unLikePost } from "../../services/postService";
 import { addComment } from "../../services/commentService";
 import { useAuth } from "../../context/AuthContext";
 import CommentList from "../Comment/CommentList";
@@ -38,10 +36,36 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
   const [commentText, setCommentText] = useState("");
   const [isCommenting, setIsCommenting] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(initialPost.likes?.length || 0);
 
-  const handleLikeClick = () => {
-    setIsLiked(!isLiked);
-  };
+  useEffect(() => {
+    if (user && post.likes) {
+      setIsLiked(post.likes.includes(user._id));
+      setLikeCount(post.likes.length);
+    }
+  }, [user, post.likes]);
+
+  const handleLikeClick = useCallback(async () => {
+    try {
+      if (isLiked) {
+        // Gọi API unLikePost
+        const response = await unLikePost(post._id);
+        setIsLiked(false);
+        setLikeCount((prev) => prev - 1);
+        setPost(response.post); // Cập nhật state từ response
+        onPostUpdated(response.post); // Thông báo lên parent
+      } else {
+        // Gọi API likePost
+        const response = await likePost(post._id);
+        setIsLiked(true);
+        setLikeCount((prev) => prev + 1);
+        setPost(response.post); // Cập nhật state từ response
+        onPostUpdated(response.post); // Thông báo lên parent
+      }
+    } catch (error) {
+      console.error("Failed to toggle like", error);
+    }
+  }, [isLiked, post._id, onPostUpdated]);
 
   const handleDeletePost = useCallback(async () => {
     try {
@@ -152,7 +176,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
             className={cx("button-icon", { active: isLiked })}
             onClick={handleLikeClick}
           />
-          <p>Likes</p>
+          <p>{likeCount} Likes</p>
         </div>
         <div className={cx("item-actions")}>
           <FaRegComment className={cx("button-icon")} />
