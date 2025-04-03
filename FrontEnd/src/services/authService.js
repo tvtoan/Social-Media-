@@ -45,13 +45,14 @@ export const register = async (userData) => {
   }
 };
 
-export const login = async (email, password) => {
+export const login = async (email, password, mood) => {
   try {
     const response = await axios.post(
       `${API_URL}/login`,
       {
         email,
         password,
+        mood,
       },
       {
         headers: {

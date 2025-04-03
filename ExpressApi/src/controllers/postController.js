@@ -8,6 +8,7 @@ export const createPost = async (req, res) => {
       userId: req.user.id,
       description: req.body.description,
       image: req.file ? `/uploads/${req.file.filename}` : null,
+      mood: req.body.mood || "neutral",
       likes: req.body.likes || [],
     });
 
@@ -108,16 +109,6 @@ export const getPostByMood = async (req, res) => {
         filter = {
           $or: [
             { mood: { $in: ["happy", "excited"] } },
-            { userId: { $in: user.followings } },
-          ],
-        };
-        break;
-
-      case "angry":
-        // Hiển thị bài neutral hoặc happy để làm dịu, ưu tiên bài ít tương tác tiêu cực
-        filter = {
-          $or: [
-            { mood: { $in: ["neutral", "happy"] } },
             { userId: { $in: user.followings } },
           ],
         };

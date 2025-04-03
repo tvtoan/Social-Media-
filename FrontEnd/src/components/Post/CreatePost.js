@@ -14,7 +14,15 @@ const CreatePost = ({ onPostCreated, userId }) => {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [mood, setMood] = useState("");
   const [error, setError] = useState("");
+
+  const moodOptions = [
+    { value: "happy", label: "😊 Vui vẻ", color: "bg-yellow-200" },
+    { value: "sad", label: "😢 Buồn", color: "bg-blue-200" },
+    { value: "excited", label: "🤩 Hào hứng", color: "bg-green-200" },
+    { value: "neutral", label: "😐 Bình thường", color: "bg-gray-200" },
+  ];
 
   const fileInputRef = useRef(null);
 
@@ -41,6 +49,7 @@ const CreatePost = ({ onPostCreated, userId }) => {
 
     const formData = new FormData();
     formData.append("userId", userId);
+    formData.append("mood", mood);
     formData.append("description", content);
     if (image) {
       formData.append("image", image);
@@ -53,6 +62,7 @@ const CreatePost = ({ onPostCreated, userId }) => {
       setPreview(null);
       setError("");
       onPostCreated(newPost);
+      setMood("neutral");
     } catch (error) {
       console.error("Error creating post", error);
       setError("Failed to create post. Please try again.");
@@ -95,6 +105,23 @@ const CreatePost = ({ onPostCreated, userId }) => {
           <img src={preview} alt="Preview" className={cx("img-preview")} />
         </div>
       )}
+      <div className={cx("mood-section")}>
+        <label className={cx("mood-label")}>Tâm trạng của bạn</label>
+        <div className={cx("mood-options")}>
+          {moodOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setMood(option.value)}
+              className={cx("mood-button", option.className, {
+                "mood-selected": mood === option.value,
+              })}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <p className={cx("line")}></p>
 

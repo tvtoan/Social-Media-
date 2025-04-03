@@ -11,7 +11,7 @@ const postSchema = new mongoose.Schema(
     image: { type: String },
     mood: {
       type: String,
-      enum: ["happy", "sad", "angry", "excited", "neutral"],
+      enum: ["happy", "sad", "excited", "neutral"],
       default: "neutral",
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

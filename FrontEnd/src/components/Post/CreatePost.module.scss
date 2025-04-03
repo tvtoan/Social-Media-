@@ -58,6 +58,43 @@
   object-fit: cover;
 }
 
+.mood-section {
+  margin: 15px 0;
+
+  .mood-label {
+    display: block;
+    margin-bottom: 15px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  .mood-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mood-button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    color: white;
+    background: #333334;
+
+    &:hover {
+      opacity: 0.85;
+      transform: scale(1.05);
+    }
+
+    &.mood-selected {
+      transform: scale(1.05);
+    }
+  }
+}
+
 .line {
   width: 100%;
   border: 1px solid rgb(102, 99, 99);

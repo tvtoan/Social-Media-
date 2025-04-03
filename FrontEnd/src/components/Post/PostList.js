@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { getPostByMood, getPosts } from "../../services/postService";
+import { getPostByMood } from "../../services/postService";
 import Post from "./Post";
 import CreatePost from "./CreatePost";
 
@@ -8,26 +8,12 @@ const PostList = ({ userId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log(posts);
+
   const fetchPostsByMood = useCallback(async () => {
     try {
       setLoading(true);
-      const moodPosts = await getPostByMood("natural");
-      console.log(moodPosts);
-    } catch (error) {
-      console.error("Error fetching posts by mood", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchPostsByMood();
-  }, [fetchPostsByMood]);
-
-  const fetchPosts = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await getPosts();
+      const data = await getPostByMood();
       setPosts(data.reverse());
     } catch (error) {
       console.error("Error fetching posts", error);
@@ -38,12 +24,12 @@ const PostList = ({ userId }) => {
   }, []);
 
   useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
+    fetchPostsByMood();
+  }, [fetchPostsByMood]);
 
   const handlePostCreated = async (newPost) => {
     setPosts((prevPosts) => [newPost, ...prevPosts]);
-    await fetchPosts(); // Gọi lại API để lấy danh sách mới nhất
+    await fetchPostsByMood(); // Gọi lại API để lấy danh sách mới nhất
   };
 
   const handlePostUpdated = useCallback((updatedPostOrFunction) => {

@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
     },
     currentMood: {
       type: String,
-      enum: ["happy", "sad", "angry", "excited", "neutral"],
+      enum: ["happy", "sad", "excited", "neutral"],
       default: "neutral",
     },
     profilePicture: { type: String, default: "" },

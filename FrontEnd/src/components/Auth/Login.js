@@ -9,13 +9,22 @@ const cx = classNames.bind(styles);
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mood, setMood] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const moodOptions = [
+    { value: "happy", label: "😊 Vui vẻ", color: "bg-yellow-200" },
+    { value: "sad", label: "😢 Buồn", color: "bg-blue-200" },
+    { value: "excited", label: "🤩 Hào hứng", color: "bg-green-200" },
+    { value: "neutral", label: "😐 Bình thường", color: "bg-gray-200" },
+  ];
+
+  console.log(mood);
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await login(email, password);
+      const response = await login(email, password, mood);
       if (response && response.token) {
         localStorage.setItem("token", response.token);
         window.location.href = "/home";
@@ -79,6 +88,26 @@ const Login = () => {
           <a href="/" className={cx("forgot-password")}>
             Bạn quên mật khẩu?
           </a>
+          <div className={cx("mood-section")}>
+            <label className={cx("mood-label")}>
+              Bạn đang cảm thấy thế nào?
+            </label>
+            <div className={cx("mood-options")}>
+              {moodOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setMood(option.value)}
+                  className={cx("mood-button", option.className, {
+                    "mood-selected": mood === option.value,
+                  })}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button type="submit" className={cx("login-button")}>
             Đăng nhập
           </button>
@@ -93,13 +122,13 @@ const Login = () => {
               color: "#000",
               border: "1px solid #ccc",
               padding: "10px",
-              margin: "10px 0",
+              margin: "0px 0 20px 0",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: "10px",
               cursor: "pointer",
-              borderRadius: "5px",
+              borderRadius: "25px",
             }}
           >
             <img
