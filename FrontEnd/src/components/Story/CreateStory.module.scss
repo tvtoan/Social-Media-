@@ -9,7 +9,7 @@
   margin-top: 10px;
   margin-left: 50px;
   border-radius: 10px;
-  background-color: #333334;
+  background-color: var(--story-bg);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   box-sizing: border-box; /* Đảm bảo padding không làm thay đổi kích thước của form */
 }
@@ -27,7 +27,7 @@
   height: 20px;
   padding: 5px;
   margin-top: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   resize: none;
 }
@@ -58,7 +58,7 @@
   display: flex;
   justify-content: center;
   font-size: 30px;
-  color: #d6cbcb;
+  color: var(--icon-color);
 }
 
 .form-input {
@@ -80,7 +80,7 @@
 .icon-upload {
   background-color: none;
   &:hover {
-    color: rgb(148, 143, 143);
+    color: var(--hover-bg);
   }
 }
 .icon-send {

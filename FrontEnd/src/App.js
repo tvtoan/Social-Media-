@@ -1,11 +1,14 @@
 import React from "react";
 import AppRoutes from "./routes";
 import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "./context/themeContext";
 
 const App = () => {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      <ThemeProvider>
+        <AppRoutes />
+      </ThemeProvider>
     </BrowserRouter>
   );
 };

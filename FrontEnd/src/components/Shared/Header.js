@@ -7,11 +7,12 @@ import {
   FaBell,
   FaSearch,
 } from "react-icons/fa";
+import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { PiVideoFill } from "react-icons/pi";
 import { AiFillHome, AiOutlineLogout } from "react-icons/ai";
-
 import { getUserByUsername, logout } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/themeContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import defaultAvt from "../../img/default.jpg";
 
@@ -27,28 +28,14 @@ const menuItems = [
 
 const Header = () => {
   const { user } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-
   const navigate = useNavigate();
   const location = useLocation();
   const [active, setActive] = useState("home");
 
-  const handleLogout = async () => {
-    try {
-      const confirmLogout = window.confirm("Bạn có muốn đăng xuất không?");
-      if (!confirmLogout) return;
-      await logout();
-      alert("Đăng xuất thành công!");
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Logout error:", error);
-      alert(`Đăng xuất thát bại: ${error.message}`);
-    }
-  };
-
   useEffect(() => {
-    // Cập nhật trạng thái active khi URL thay đổi
     const currentPath = location.pathname;
     const activeMenu =
       menuItems.find((item) => item.path === currentPath)?.name || "home";
@@ -58,7 +45,6 @@ const Header = () => {
   const handleSearch = async (e) => {
     const query = e.target.value.trim().toLowerCase();
     setSearchTerm(query);
-
     if (query) {
       try {
         const results = await getUserByUsername(query);
@@ -69,6 +55,19 @@ const Header = () => {
       }
     } else {
       setSearchResults([]);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const confirmLogout = window.confirm("Bạn có muốn đăng xuất không?");
+      if (!confirmLogout) return;
+      await logout();
+      alert("Đăng xuất thành công!");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert(`Đăng xuất thất bại: ${error.message}`);
     }
   };
 
@@ -126,7 +125,10 @@ const Header = () => {
           className={cx("img")}
           onClick={() => navigate(`/profile/${user?._id}`)}
         />
-        <AiOutlineLogout onClick={handleLogout} />
+        <div className={cx("theme-toggle")} onClick={toggleTheme}>
+          {isDarkMode ? <MdLightMode /> : <MdDarkMode />}
+        </div>
+        <AiOutlineLogout onClick={handleLogout} className={cx("logout")} />
       </div>
     </div>
   );

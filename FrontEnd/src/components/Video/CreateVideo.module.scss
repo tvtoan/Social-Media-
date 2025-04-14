@@ -4,7 +4,7 @@
   flex-direction: column;
   border-radius: 10px;
   padding: 20px;
-  background-color: #252728;
+  background-color: var(--post-bg);
   width: 125%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   min-width: 520px;
@@ -38,8 +38,8 @@
   font-size: 14px;
   resize: vertical;
   min-height: 20px;
-  background-color: #333334;
-  color: white;
+  background-color: var(--input-bg);
+  color: var(--text-color);
 }
 
 .form-input {
@@ -56,7 +56,7 @@
 
 .line {
   width: 100%;
-  border: 1px solid rgb(102, 99, 99);
+  border: 1px solid var(--border-color);
   margin-top: 20px;
   margin-bottom: 10px;
 }
@@ -70,7 +70,7 @@
 }
 
 .custom-file-upload {
-  color: #ddd6d6;
+  color: var(--icon-color);
   font-size: 30px;
   cursor: pointer;
   border: none;
@@ -80,7 +80,7 @@
 
 .form-post {
   cursor: pointer;
-  background-color: #252728;
+  background-color: var(--post-bg);
   border: none;
   color: #ffffff;
   &:hover {
@@ -88,7 +88,7 @@
   }
 }
 .icon-upload {
-  background-color: #252728;
+  background-color: var(--post-bg);
   &:hover {
     color: rgb(148, 143, 143);
   }
@@ -96,4 +96,5 @@
 .icon-send {
   width: 20px;
   height: 20px;
+  color: var(--icon-color);
 }

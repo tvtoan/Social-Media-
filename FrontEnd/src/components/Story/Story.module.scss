@@ -2,7 +2,7 @@
   position: relative;
   width: 150px;
   height: 250px;
-  border-radius: 10px; 
+  border-radius: 10px;
   overflow: hidden;
   background-color: #e4e6eb;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -37,12 +37,11 @@
   right: 10px;
   display: flex;
   flex-direction: column;
-  color: white;
+  color: var(--text-color);
   font-size: 12px;
 
   .user {
     align-items: center;
-    
 
     .avatar {
       position: absolute;

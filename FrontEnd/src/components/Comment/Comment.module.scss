@@ -21,7 +21,7 @@
 
   .comment-body {
     flex: 1;
-    background: #333334;
+    background: var(--comment-bg);
     padding: 8px 12px;
     border-radius: 10px;
   }
@@ -30,11 +30,12 @@
     font-size: 14px;
     font-weight: bold;
     margin-bottom: 4px;
+    color: var(--text-color);
   }
 
   .comment-text {
     font-size: 14px;
-    color: #d5d7db;
+    color: var(--text-color);
   }
 
   .comment-actions {
@@ -89,7 +90,7 @@
     border-radius: 8px;
     border: 1px solid #ccc;
     outline: none;
-    background: #333334;
+    background: var(--input-bg);
   }
 
   .reply-submit {

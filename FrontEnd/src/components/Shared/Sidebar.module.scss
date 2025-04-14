@@ -3,13 +3,13 @@
   max-width: 500px;
   min-height: 100vh;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  background-color: #1c1e21;
+  background-color: var(--sidebar-bg);
   position: fixed;
   top: 60px;
   left: 0;
   padding-top: 20px;
 
-  border-right: 0.5px solid #444242;
+  border-right: 0.5px solid var(--border-color);
 }
 
 .profile {
@@ -20,10 +20,11 @@
   padding: 10px;
   margin-left: 20px;
   margin-top: 20px;
-  background-color: #2a2a2a;
+  background-color: var(--sidebar-bg);
   position: relative;
   border-radius: 10px;
   height: 550px;
+  border-bottom: 2px solid var(--border-color);
 }
 .cover-picture {
   width: 100%;
@@ -68,8 +69,8 @@
   position: absolute;
   top: 87%;
   font-size: 14px;
-  background: linear-gradient(to bottom, #474747, #504d4d);
-  color: white;
+  background: var(--input--bg);
+  color: var(--text-color);
   border: none;
   border-radius: 20px;
   padding: 10px 20px;
@@ -104,12 +105,12 @@
 .sidebar li p {
   font-size: 1.1rem;
   font-weight: 600;
-  color: white;
+  color: var(--text-color);
 }
 
 .title {
   text-decoration: none;
-  color: white;
+  color: var(--text-color);
 }
 
 /* Make links responsive on smaller screens */

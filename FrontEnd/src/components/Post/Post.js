@@ -15,13 +15,10 @@ import defaultAvt from "../../img/default.jpg";
 
 const cx = classNames.bind(styles);
 
-// Helper function to safely format dates
 const safeFormatDate = (dateString) => {
   if (!dateString) return "recently";
-
   try {
     const date = new Date(dateString);
-    // Check if date is valid
     if (isNaN(date.getTime())) return "recently";
     return formatDistanceToNow(date, { addSuffix: true });
   } catch (error) {
@@ -48,19 +45,17 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
   const handleLikeClick = useCallback(async () => {
     try {
       if (isLiked) {
-        // Gọi API unLikePost
         const response = await unLikePost(post._id);
         setIsLiked(false);
         setLikeCount((prev) => prev - 1);
-        setPost(response.post); // Cập nhật state từ response
-        onPostUpdated(response.post); // Thông báo lên parent
+        setPost(response.post);
+        onPostUpdated(response.post);
       } else {
-        // Gọi API likePost
         const response = await likePost(post._id);
         setIsLiked(true);
         setLikeCount((prev) => prev + 1);
-        setPost(response.post); // Cập nhật state từ response
-        onPostUpdated(response.post); // Thông báo lên parent
+        setPost(response.post);
+        onPostUpdated(response.post);
       }
     } catch (error) {
       console.error("Failed to toggle like", error);
@@ -70,7 +65,6 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
   const handleDeletePost = useCallback(async () => {
     try {
       await deletePost(post._id);
-      // Pass a function to onPostUpdated that filters out the deleted post
       onPostUpdated((prevPosts) => prevPosts.filter((p) => p._id !== post._id));
     } catch (error) {
       console.error("Failed to delete post", error);
@@ -81,7 +75,6 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
     async (e) => {
       e.preventDefault();
       if (!commentText.trim()) return;
-
       try {
         setIsCommenting(true);
         const newComment = await addComment(post._id, { comment: commentText });
@@ -93,21 +86,14 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
             profilePicture: user.profilePicture,
           },
         };
-
-        // Create an updated post with the new comment
         const updatedPost = {
           ...post,
           comments: Array.isArray(post.comments)
             ? [commentWithUser, ...post.comments]
             : [commentWithUser],
         };
-
-        // Update local state
         setPost(updatedPost);
-
-        // Pass the updated post to the parent component
         onPostUpdated(updatedPost);
-
         setCommentText("");
       } catch (error) {
         console.error("Failed to add comment", error);
@@ -120,22 +106,13 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
 
   const handleCommentUpdated = useCallback(
     (updatedComments) => {
-      // Create an updated post with the updated comments
-      const updatedPost = {
-        ...post,
-        comments: updatedComments,
-      };
-
-      // Update local state
+      const updatedPost = { ...post, comments: updatedComments };
       setPost(updatedPost);
-
-      // Pass the updated post to the parent component
       onPostUpdated(updatedPost);
     },
     [post, onPostUpdated]
   );
 
-  // Guard against invalid post data
   if (!post) return null;
 
   return (
@@ -157,7 +134,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
           <p className={cx("post-time")}>{safeFormatDate(post.createdAt)}</p>
         </div>
         {user && post.userId && user._id === post.userId._id && (
-          <button onClick={handleDeletePost} className={cx("delete-button")}>
+          <button onClick={handleDeletePost}>
             <FaDeleteLeft className={cx("delete-button")} />
           </button>
         )}

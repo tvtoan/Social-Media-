@@ -8,8 +8,8 @@
 .left-column,
 .middle-column,
 .right-column {
-  background-color: #1c1e21;
-  color: #fff;
+  background-color: var(--post-bg);
+  color: var(--text-color);
   padding: 16px;
   min-height: 100vh;
 }
@@ -35,7 +35,7 @@
   z-index: 1000;
   right: 0;
   overflow-y: auto;
-  border-left: 0.5px solid #404142;
+  border-left: 0.5px solid var(--border-color);
 }
 
 @media (max-width: 1600px) {

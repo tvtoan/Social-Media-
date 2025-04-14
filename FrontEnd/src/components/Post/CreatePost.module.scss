@@ -4,7 +4,7 @@
   flex-direction: column;
   border-radius: 10px;
   padding: 20px;
-  background-color: #252728;
+  background-color: var(--post-bg);
   max-width: 60%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   min-width: 520px;
@@ -42,7 +42,7 @@
   font-size: 14px;
   resize: vertical;
   min-height: 20px;
-  background-color: #333334;
+  background-color: var(--input-bg);
   color: white;
 }
 
@@ -64,12 +64,13 @@
   .mood-label {
     display: block;
     margin-bottom: 15px;
-    color: #666;
+    color: var(--text-color);
     font-weight: 500;
   }
 
   .mood-options {
     display: flex;
+
     flex-wrap: wrap;
     gap: 8px;
   }
@@ -81,8 +82,8 @@
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s;
-    color: white;
-    background: #333334;
+    color: var(--text-color);
+    background: var(--input-bg);
 
     &:hover {
       opacity: 0.85;
@@ -97,7 +98,7 @@
 
 .line {
   width: 100%;
-  border: 1px solid rgb(102, 99, 99);
+  border: var(--border-color) 1px solid;
   margin-top: 20px;
   margin-bottom: 10px;
 }
@@ -121,17 +122,18 @@
 
 .form-post {
   cursor: pointer;
-  background-color: #252728;
+  background-color: var(--post-bg);
   border: none;
-  color: #ffffff;
+  color: var(--icon-color);
   &:hover {
-    color: rgb(148, 143, 143);
+    color: var(--hover-bg);
   }
 }
 .icon-upload {
-  background-color: #252728;
+  background-color: var(--post-bg);
+  color: var(--icon-color);
   &:hover {
-    color: rgb(148, 143, 143);
+    color: var(--hover-bg);
   }
 }
 .icon-send {
