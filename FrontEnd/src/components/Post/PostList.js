@@ -7,14 +7,13 @@ const PostList = ({ userId }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   console.log(posts);
 
   const fetchPostsByMood = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getPostByMood();
-      setPosts(data.reverse());
+      setPosts(data);
     } catch (error) {
       console.error("Error fetching posts", error);
       setError("Failed to load posts. Please try again later.");

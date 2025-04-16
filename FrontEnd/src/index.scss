@@ -14,6 +14,8 @@
   --input-bg: #f0f0f0;
   --container-bg: #fff;
   --column-bg: #fff;
+  --button-bg: #d7dde4;
+  --bg-bottom: #ddd;
 }
 
 body.dark-mode {
@@ -32,4 +34,6 @@ body.dark-mode {
   --input-bg: #333334;
   --container-bg: #1c1e21;
   --column-bg: #1c1e21;
+  --button-bg: #444;
+  --bg-bottom: #575252;
 }

@@ -134,9 +134,10 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
           <p className={cx("post-time")}>{safeFormatDate(post.createdAt)}</p>
         </div>
         {user && post.userId && user._id === post.userId._id && (
-          <button onClick={handleDeletePost}>
-            <FaDeleteLeft className={cx("delete-button")} />
-          </button>
+          <FaDeleteLeft
+            onClick={handleDeletePost}
+            className={cx("delete-button")}
+          />
         )}
       </div>
       <p className={cx("description")}>{post.description}</p>

@@ -59,6 +59,7 @@ const Sidebar = () => {
           </button>
         </div>
       </ul>
+      <div className={cx("line")}></div>
     </aside>
   );
 };
