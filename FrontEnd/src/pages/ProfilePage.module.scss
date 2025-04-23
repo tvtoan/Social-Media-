@@ -82,6 +82,21 @@
   position: absolute;
 }
 
+.follow-button {
+  background-color: var(--button-bg);
+  color: var(--text-color);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  &:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-color);
+  }
+}
+
 .custom-profile {
   position: absolute;
   background-color: rgba(0, 0, 0, 0);

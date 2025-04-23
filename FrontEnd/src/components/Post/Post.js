@@ -48,14 +48,26 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
         const response = await unLikePost(post._id);
         setIsLiked(false);
         setLikeCount((prev) => prev - 1);
-        setPost(response.post);
-        onPostUpdated(response.post);
+        setPost((prevPost) => ({
+          ...prevPost,
+          likes: response.post.likes,
+        }));
+        onPostUpdated({
+          ...post,
+          likes: response.post.likes,
+        });
       } else {
         const response = await likePost(post._id);
         setIsLiked(true);
         setLikeCount((prev) => prev + 1);
-        setPost(response.post);
-        onPostUpdated(response.post);
+        setPost((prevPost) => ({
+          ...prevPost,
+          likes: response.post.likes,
+        }));
+        onPostUpdated({
+          ...post,
+          likes: response.post.likes,
+        });
       }
     } catch (error) {
       console.error("Failed to toggle like", error);

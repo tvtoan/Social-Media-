@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "./Header.module.scss";
 import classNames from "classnames/bind";
 import {
@@ -31,9 +31,11 @@ const Header = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [active, setActive] = useState("home");
+  const searchRef = useRef(null);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -42,6 +44,18 @@ const Header = () => {
     setActive(activeMenu);
   }, [location]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   const handleSearch = async (e) => {
     const query = e.target.value.trim().toLowerCase();
     setSearchTerm(query);
@@ -49,12 +63,21 @@ const Header = () => {
       try {
         const results = await getUserByUsername(query);
         setSearchResults(results);
+        setShowSearchResults(true);
       } catch (error) {
         console.error("Error fetching search results:", error);
         setSearchResults([]);
+        setShowSearchResults(false);
       }
     } else {
       setSearchResults([]);
+      setShowSearchResults(false);
+    }
+  };
+
+  const handleInputClick = () => {
+    if (searchResults.length > 0 || searchTerm) {
+      setShowSearchResults(true);
     }
   };
 
@@ -75,18 +98,24 @@ const Header = () => {
     <div className={cx("header")}>
       <div className={cx("header-left")}>
         <img src="/images/logo.jpg" alt="logo" className={cx("img")} />
-        <div className={cx("header-search")}>
+        <div className={cx("header-search")} ref={searchRef}>
           <FaSearch className={cx("header-icon")} style={{ padding: "10px" }} />
           <input
             type="text"
             placeholder="Tìm kiếm"
             value={searchTerm}
             onChange={handleSearch}
+            onClick={handleInputClick}
           />
-          {searchResults.length > 0 && (
+          {showSearchResults && searchResults.length > 0 && (
             <div className={cx("search-results")}>
               {searchResults.map((user) => (
-                <div key={user._id} className={cx("search-result-item")}>
+                <div
+                  key={user._id}
+                  className={cx("search-result-item")}
+                  onClick={() => navigate(`/profile/${user._id}`)} // Cập nhật điều hướng
+                  style={{ cursor: "pointer" }} // Thêm cursor cho UX
+                >
                   <img
                     src={
                       user.profilePicture
