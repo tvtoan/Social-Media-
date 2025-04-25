@@ -14,8 +14,10 @@ const CreatePost = ({ onPostCreated, userId }) => {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [mood, setMood] = useState("");
+  const [mood, setMood] = useState("neutral");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const moodOptions = [
     { value: "happy", label: "😊 Vui vẻ", color: "bg-yellow-200" },
@@ -43,9 +45,13 @@ const CreatePost = ({ onPostCreated, userId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) {
-      setError("Content cannot be empty");
+      setError("Nội dung không được để trống");
       return;
     }
+
+    setIsLoading(true);
+    setError("");
+    setSuccess("");
 
     const formData = new FormData();
     formData.append("userId", userId);
@@ -57,21 +63,29 @@ const CreatePost = ({ onPostCreated, userId }) => {
 
     try {
       const newPost = await createPost(formData);
+      onPostCreated(newPost);
       setContent("");
       setImage(null);
       setPreview(null);
-      setError("");
-      onPostCreated(newPost);
       setMood("neutral");
+      setSuccess("Bài đăng đã được tạo!");
+      setTimeout(() => setSuccess(""), 3000);
     } catch (error) {
-      console.error("Error creating post", error);
-      setError("Failed to create post. Please try again.");
+      console.error("Error creating post:", error);
+      setError("Không thể tạo bài đăng. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  if (!user) {
+    return <p>Bạn cần đăng nhập để đăng bài.</p>;
+  }
+
   return (
-    <form className={cx("form")}>
+    <form className={cx("form")} onSubmit={handleSubmit}>
       {error && <p className={cx("error")}>{error}</p>}
+      {success && <p className={cx("success")}>{success}</p>}
 
       <div className={cx("form-user")}>
         <img
@@ -86,8 +100,9 @@ const CreatePost = ({ onPostCreated, userId }) => {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="What's on your mind?"
+          placeholder="Bạn đang nghĩ gì?"
           className={cx("description")}
+          disabled={isLoading}
         ></textarea>
       </div>
 
@@ -113,9 +128,10 @@ const CreatePost = ({ onPostCreated, userId }) => {
               key={option.value}
               type="button"
               onClick={() => setMood(option.value)}
-              className={cx("mood-button", option.className, {
+              className={cx("mood-button", option.color, {
                 "mood-selected": mood === option.value,
               })}
+              disabled={isLoading}
             >
               {option.label}
             </button>
@@ -130,15 +146,16 @@ const CreatePost = ({ onPostCreated, userId }) => {
           type="button"
           onClick={handleFileClick}
           className={cx("custom-file-upload")}
+          disabled={isLoading}
         >
           <MdCloudUpload className={cx("icon-upload")} />
         </button>
-        <button
-          type="submit"
-          onClick={handleSubmit}
-          className={cx("form-post")}
-        >
-          <BsFillSendFill className={cx("icon-send")} />
+        <button type="submit" className={cx("form-post")} disabled={isLoading}>
+          {isLoading ? (
+            "Đang đăng..."
+          ) : (
+            <BsFillSendFill className={cx("icon-send")} />
+          )}
         </button>
       </div>
     </form>

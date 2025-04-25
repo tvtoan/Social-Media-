@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import styles from "./Video.module.scss";
 import classNames from "classnames/bind";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
@@ -20,10 +20,14 @@ const Video = ({ video }) => {
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState(video.comments || []);
   const [isLiked, setIsLiked] = useState(false);
+  const [showComments, setShowComments] = useState(false);
 
   const handleLikeClick = (e) => {
     setIsLiked(!isLiked);
   };
+  const handleToggleComments = useCallback(() => {
+    setShowComments((prev) => !prev);
+  });
 
   const timeAgo = formatVideoDate(video.createdAt);
 
@@ -40,6 +44,7 @@ const Video = ({ video }) => {
       const newVideo = await addComment(video._id, { comment: commentText });
       setComments(newVideo.comments); //render comments list
       setCommentText("");
+      setShowComments(true);
     } catch (error) {
       console.error("Failed to add comment", error);
     }
@@ -76,8 +81,10 @@ const Video = ({ video }) => {
           />
           <p>Likes</p>
         </div>
-        <div className={cx("item-actions")}>
-          <FaRegComment className={cx("button-icon")} />
+        <div className={cx("item-actions")} onClick={handleToggleComments}>
+          <FaRegComment
+            className={cx("button-icon", { active: showComments })}
+          />
           <p>{comments.length} Comments</p>
         </div>
         <div className={cx("item-actions")}>
@@ -86,38 +93,44 @@ const Video = ({ video }) => {
         </div>
       </div>
       <div className={cx("comments")}>
-        <h4 className={cx("comment-title")}> Comments</h4>
-        <ul className={cx("comment-list")}>
-          {Array.isArray(comments) && comments.length > 0 ? (
-            comments.map((comment) => {
-              const commentTime = formatVideoDate(comment.createAt);
-              return (
-                <li key={comment._id} className={cx("comment-item")}>
-                  <div className={cx("comment-details")}>
-                    <img
-                      src={
-                        comment.userId
-                          ? `http://localhost:3001${comment.userId?.profilePicture}`
-                          : defaultAvt
-                      }
-                      alt="profile"
-                      className={cx("img")}
-                    />
-                    <div className={cx("comment-user")}>
-                      <strong className={cx("comment-username")}>
-                        {comment.userId?.username || "Unknown User"}
-                      </strong>
-                      <p className={cx("time-comment")}>{commentTime}</p>
-                      <p className={cx("comment-text")}>{comment.comment}</p>
-                    </div>
-                  </div>
-                </li>
-              );
-            })
-          ) : (
-            <p className={cx("no-comments")}>No Comments Available</p>
-          )}
-        </ul>
+        {showComments && (
+          <div>
+            <h4 className={cx("comment-title")}> Comments</h4>
+            <ul className={cx("comment-list")}>
+              {Array.isArray(comments) && comments.length > 0 ? (
+                comments.map((comment) => {
+                  const commentTime = formatVideoDate(comment.createAt);
+                  return (
+                    <li key={comment._id} className={cx("comment-item")}>
+                      <div className={cx("comment-details")}>
+                        <img
+                          src={
+                            comment.userId
+                              ? `http://localhost:3001${comment.userId?.profilePicture}`
+                              : defaultAvt
+                          }
+                          alt="profile"
+                          className={cx("img")}
+                        />
+                        <div className={cx("comment-user")}>
+                          <strong className={cx("comment-username")}>
+                            {comment.userId?.username || "Unknown User"}
+                          </strong>
+                          <p className={cx("time-comment")}>{commentTime}</p>
+                          <p className={cx("comment-text")}>
+                            {comment.comment}
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })
+              ) : (
+                <p className={cx("no-comments")}>No Comments Available</p>
+              )}
+            </ul>
+          </div> // Show comments when clicked
+        )}
         {/* Form add comment */}
         <form onSubmit={handleCommentSubmit} className={cx("form-comment")}>
           <input

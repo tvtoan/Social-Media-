@@ -17,8 +17,6 @@ export const createComment = async (req, res) => {
       parentId: parentId || null,
       postId: postId,
     });
-    // Add 2 points for user
-    await User.findByIdAndUpdate(req.user.id, { $inc: { points: 2 } });
 
     await newComment.save();
     res.status(201).json(newComment);

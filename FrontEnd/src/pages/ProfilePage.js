@@ -25,6 +25,7 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
   const [followings, setFollowings] = useState(null);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -37,7 +38,6 @@ const ProfilePage = () => {
     }
   }, [user, loading, navigate]);
 
-  // get info user
   const fetchUserData = useCallback(async () => {
     try {
       if (!id || !user) return;
@@ -46,17 +46,19 @@ const ProfilePage = () => {
       setFollowings(data.followers.includes(user?._id));
     } catch (error) {
       console.error("Error fetching user data:", error);
+      setError("Không thể tải dữ liệu người dùng.");
     }
   }, [id, user]);
 
-  // get posts list
   const fetchUserPosts = useCallback(async () => {
     try {
       if (!id) return;
       const posts = await getPostsByUserId(id);
       setUserPosts(posts.reverse());
+      setError("");
     } catch (error) {
       console.error("Error fetching user posts:", error);
+      setError("Không thể tải danh sách bài đăng.");
     }
   }, [id]);
 
@@ -75,17 +77,14 @@ const ProfilePage = () => {
     try {
       await followUser(id);
       setFollowings(true);
-
-      // Cập nhật state ngay lập tức
       setUserData((prev) => ({
         ...prev,
         followers: [...prev.followers, user._id],
       }));
-
-      // Cập nhật user của chính mình (nếu cần)
-      refreshUser();
+      await refreshUser();
     } catch (error) {
       console.error("Error following user:", error);
+      setError("Không thể follow người dùng.");
     }
   };
 
@@ -97,16 +96,14 @@ const ProfilePage = () => {
     try {
       await unfollowUser(id);
       setFollowings(false);
-
-      // Cập nhật state ngay lập tức
       setUserData((prev) => ({
         ...prev,
         followers: prev.followers.filter((follower) => follower !== user._id),
       }));
-
-      refreshUser();
+      await refreshUser();
     } catch (error) {
       console.error("Error unfollowing user:", error);
+      setError("Không thể unfollow người dùng.");
     }
   };
 
@@ -127,9 +124,13 @@ const ProfilePage = () => {
     if (file) {
       try {
         const updatedUser = await updateProfilePicture(file);
-        setUserData(updatedUser); // Update info user
+        setUserData(updatedUser);
+        if (id === user._id) {
+          await refreshUser();
+        }
       } catch (error) {
         console.error("Error updating profile picture:", error);
+        setError("Không thể cập nhật ảnh đại diện.");
       }
     }
   };
@@ -140,24 +141,35 @@ const ProfilePage = () => {
       try {
         const updatedUser = await updateCoverPicture(file);
         setUserData(updatedUser);
+        if (id === user._id) {
+          await refreshUser();
+        }
       } catch (error) {
         console.error("Error updating cover picture:", error);
+        setError("Không thể cập nhật ảnh bìa.");
       }
     }
   };
 
-  const handlePostCreated = (newPost) => {
-    setUserPosts((prevPosts) => [newPost, ...prevPosts]);
-  };
+  const handlePostCreated = useCallback(
+    (newPost) => {
+      setUserPosts((prevPosts) => [newPost, ...prevPosts]);
+      fetchUserPosts().catch((error) => {
+        console.error("Error refreshing posts:", error);
+        setError("Không thể làm mới danh sách bài đăng.");
+      });
+    },
+    [fetchUserPosts]
+  );
 
   if (!user) {
-    return <p>You must log in to view this page</p>;
+    return <p>Bạn cần đăng nhập để xem trang này</p>;
   }
 
   return (
     <Layout>
       <div className={cx("profile-page")}>
-        {/* Cover Picture */}
+        {error && <p className={cx("error")}>{error}</p>}
         <div className={cx("cover-picture")}>
           <img
             src={
@@ -179,8 +191,6 @@ const ProfilePage = () => {
             <IoIosCamera />
           </button>
         </div>
-
-        {/* User Info */}
         <div className={cx("user-info")}>
           <img
             src={
@@ -203,10 +213,8 @@ const ProfilePage = () => {
           </button>
           <p className={cx("username")}>{userData?.username}</p>
         </div>
-
-        {/* User Actions */}
         <div>
-          {user?.id !== id && (
+          {user?._id !== id && (
             <button
               className={cx("follow-button", { following: followings })}
               onClick={handleToggle}
@@ -215,10 +223,8 @@ const ProfilePage = () => {
             </button>
           )}
         </div>
-
-        {/* User Posts */}
         <div className={cx("user-posts")}>
-          <CreatePost onPostCreated={handlePostCreated} userId={id} />
+          <CreatePost onPostCreated={handlePostCreated} userId={user._id} />
           <ul style={{ listStyle: "none" }}>
             {userPosts.map((post) => (
               <li key={post._id}>

@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./HomePage.module.scss";
 import classNames from "classnames/bind";
 import UserList from "../components/Shared/UserList";
+
 const cx = classNames.bind(styles);
 
 const HomePage = () => {
@@ -21,6 +22,7 @@ const HomePage = () => {
   if (loading) {
     return <div>Loading...</div>; // Hiển thị khi đang kiểm tra auth
   }
+
   return (
     <Layout className={cx("main-container")}>
       <div className={cx("container")}>
@@ -34,7 +36,7 @@ const HomePage = () => {
             <StoryList />
           </div>
           <div className={cx("postlist-wrapper")}>
-            <PostList />
+            <PostList userId={user._id} />
           </div>
         </div>
         <div className={cx("right-column")}>
@@ -44,7 +46,6 @@ const HomePage = () => {
       </div>
     </Layout>
   );
-  //
 };
 
 export default HomePage;

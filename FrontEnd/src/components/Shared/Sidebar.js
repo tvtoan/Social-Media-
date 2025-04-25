@@ -25,8 +25,8 @@ const Sidebar = () => {
         <div className={cx("profile")}>
           <img
             src={
-              user.profilePicture
-                ? `http://localhost:3001${user?.coverPicture}`
+              user.coverPicture
+                ? `http://localhost:3001${user.coverPicture}`
                 : defaultAvt
             }
             alt="CoverPicture"
@@ -35,10 +35,10 @@ const Sidebar = () => {
           <img
             src={
               user.profilePicture
-                ? `http://localhost:3001${user?.profilePicture}`
+                ? `http://localhost:3001${user.profilePicture}`
                 : defaultAvt
             }
-            alt="profilePicture"
+            alt="ProfilePicture"
             className={cx("profile-picture")}
           />
           <div className={cx("username")}>{user.username}</div>
@@ -49,7 +49,7 @@ const Sidebar = () => {
             {user.followings.length} Followings
           </div>
           <div className={cx("introduce")}>
-            {user.introduce} Lao động hết mình, May mắn sẽ tìm đến
+            {user.introduce || "Lao động hết mình, May mắn sẽ tìm đến"}
           </div>
           <button
             className={cx("button")}

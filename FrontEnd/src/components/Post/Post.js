@@ -32,6 +32,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
   const [post, setPost] = useState(initialPost);
   const [commentText, setCommentText] = useState("");
   const [isCommenting, setIsCommenting] = useState(false);
+  const [showComments, setShowComments] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialPost.likes?.length || 0);
 
@@ -107,6 +108,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
         setPost(updatedPost);
         onPostUpdated(updatedPost);
         setCommentText("");
+        setShowComments(true);
       } catch (error) {
         console.error("Failed to add comment", error);
       } finally {
@@ -124,6 +126,10 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
     },
     [post, onPostUpdated]
   );
+
+  const handleToggleComments = useCallback(() => {
+    setShowComments((prev) => !prev);
+  });
 
   if (!post) return null;
 
@@ -168,8 +174,10 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
           />
           <p>{likeCount} Likes</p>
         </div>
-        <div className={cx("item-actions")}>
-          <FaRegComment className={cx("button-icon")} />
+        <div className={cx("item-actions")} onClick={handleToggleComments}>
+          <FaRegComment
+            className={cx("button-icon", { active: showComments })}
+          />
           <p>
             Comments ({Array.isArray(post.comments) ? post.comments.length : 0})
           </p>
@@ -179,11 +187,13 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
           <p>Share</p>
         </div>
       </div>
-      <CommentList
-        comments={Array.isArray(post.comments) ? post.comments : []}
-        postId={post._id}
-        onCommentUpdated={handleCommentUpdated}
-      />
+      {showComments && (
+        <CommentList
+          comments={Array.isArray(post.comments) ? post.comments : []}
+          postId={post._id}
+          onCommentUpdated={handleCommentUpdated}
+        />
+      )}
       <form onSubmit={handleAddComment} className={cx("comment-form")}>
         <input
           type="text"

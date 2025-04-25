@@ -33,21 +33,13 @@ export const login = async (req, res) => {
         .status(400)
         .json({ message: "Thông tin đăng nhập chưa chính xác" });
     }
-    if (!mood) {
-      return res.status(400).json({
-        message: "Vui lòng chọn cảm xúc hiện tại của bạn",
-        moodOptions: ["happy", "sad", "excited", "neutral"],
-      });
-    }
 
-    const today = new Date().toDateString();
-    if (!user.lastLogin || new Date(user.lastLogin).toDateString() !== today) {
-      user.points += 5;
-      user.lastLogin = new Date();
-      await user.save();
-    }
+    // Gán mặc định nếu không có mood
+    const selectedMood = mood || "neutral";
 
-    user.currentMood = mood;
+    // Cập nhật mood
+    user.currentMood = selectedMood;
+    user.lastLogin = new Date();
     await user.save();
 
     const token = jwt.sign(
@@ -55,10 +47,10 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "8h" }
     );
+
     res.status(200).json({
       token,
-      points: user.points,
-      message: "Đăng nhập thành công! ",
+      message: "Đăng nhập thành công!",
       currentMood: user.currentMood,
     });
   } catch (error) {

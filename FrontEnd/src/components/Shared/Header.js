@@ -113,8 +113,8 @@ const Header = () => {
                 <div
                   key={user._id}
                   className={cx("search-result-item")}
-                  onClick={() => navigate(`/profile/${user._id}`)} // Cập nhật điều hướng
-                  style={{ cursor: "pointer" }} // Thêm cursor cho UX
+                  onClick={() => navigate(`/profile/${user._id}`)} 
+                  style={{ cursor: "pointer" }} 
                 >
                   <img
                     src={

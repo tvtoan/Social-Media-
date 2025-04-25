@@ -13,11 +13,12 @@ export const createPost = async (req, res) => {
     });
 
     const savedPost = await newPost.save();
+    const populatedPost = await Post.findById(savedPost._id).populate(
+      "userId",
+      "username profilePicture"
+    );
 
-    // + 10 points cho user
-    await User.findByIdAndUpdate(req.user.id, { $inc: { points: 10 } });
-
-    res.status(201).json(savedPost);
+    res.status(201).json(populatedPost);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
