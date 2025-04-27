@@ -29,6 +29,9 @@ export const createPost = async (formData) => {
 export const getPosts = async () => {
   try {
     const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("Token not found. Please log in again.");
+    }
     const response = await axiosInstance.get("", {
       headers: {
         Authorization: `Bearer ${token}`,

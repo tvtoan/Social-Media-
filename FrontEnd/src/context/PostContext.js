@@ -12,6 +12,11 @@ export const PostProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchPosts = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setPosts([]);
+      return;
+    }
     setLoading(true);
     try {
       const fetchedPosts = await getPosts();

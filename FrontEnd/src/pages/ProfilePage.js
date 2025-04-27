@@ -8,6 +8,7 @@ import {
   unfollowUser,
   updateCoverPicture,
   updateProfilePicture,
+  updateIntroduce,
 } from "../services/authService";
 import { getPostsByUserId } from "../services/postService";
 import Layout from "../components/Layout/Layout";
@@ -26,9 +27,10 @@ const ProfilePage = () => {
   const [userPosts, setUserPosts] = useState([]);
   const [followings, setFollowings] = useState(null);
   const [error, setError] = useState("");
+  const [isEditingIntroduce, setIsEditingIntroduce] = useState(false);
+  const [introduceInput, setIntroduceInput] = useState("");
 
   const navigate = useNavigate();
-
   const profilePictureRef = useRef(null);
   const coverPictureRef = useRef(null);
 
@@ -43,6 +45,7 @@ const ProfilePage = () => {
       if (!id || !user) return;
       const data = await getUserById(id);
       setUserData(data);
+      setIntroduceInput(data.introduce || ""); // Khởi tạo introduce
       setFollowings(data.followers.includes(user?._id));
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -151,6 +154,28 @@ const ProfilePage = () => {
     }
   };
 
+  const handleEditIntroduce = () => {
+    setIsEditingIntroduce(true);
+  };
+
+  const handleSaveIntroduce = async () => {
+    try {
+      const updatedUser = await updateIntroduce(introduceInput);
+      setUserData((prev) => ({ ...prev, introduce: updatedUser.introduce }));
+      setIsEditingIntroduce(false);
+      if (id === user._id) {
+        await refreshUser();
+      }
+    } catch (error) {
+      console.error("Error saving introduce:", error);
+      setError("Không thể cập nhật giới thiệu.");
+    }
+  };
+
+  const handleIntroduceChange = (e) => {
+    setIntroduceInput(e.target.value);
+  };
+
   const handlePostCreated = useCallback(
     (newPost) => {
       setUserPosts((prevPosts) => [newPost, ...prevPosts]);
@@ -212,6 +237,44 @@ const ProfilePage = () => {
             <IoIosCamera />
           </button>
           <p className={cx("username")}>{userData?.username}</p>
+          <div className={cx("follower-info")}>
+            <p>{userData?.followers.length} followers</p>
+            <p>{userData?.followings.length} followings</p>
+          </div>
+          <div className={cx("introduce")}>
+            {isEditingIntroduce ? (
+              <div className={cx("introduce-container")}>
+                <input
+                  type="text"
+                  value={introduceInput}
+                  onChange={handleIntroduceChange}
+                  placeholder="Nhập giới thiệu..."
+                  className={cx("introduce-input")}
+                />
+                <button
+                  onClick={handleSaveIntroduce}
+                  className={cx("introduce-button", "save")}
+                >
+                  Save
+                </button>
+              </div>
+            ) : (
+              <div className={cx("introduce-container")}>
+                <p className={cx("introduce-text")}>
+                  {userData?.introduce ||
+                    "Lao động hết mình, may mắn sẽ tìm đến"}
+                </p>
+                {user?._id === id && (
+                  <button
+                    onClick={handleEditIntroduce}
+                    className={cx("introduce-button", "edit")}
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         <div>
           {user?._id !== id && (
