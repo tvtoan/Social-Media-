@@ -1,40 +1,92 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { getPostByMood } from "../../services/postService";
-import { useAuth } from "../../context/AuthContext";
 import Post from "./Post";
 import CreatePost from "./CreatePost";
+import styles from "./PostList.module.scss";
+import classNames from "classnames/bind";
 
-const PostList = ({ userId }) => {
-  const { user } = useAuth();
+const PostList = ({ userId, containerRef }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const fetchPostsByMood = useCallback(async () => {
+  const cx = classNames.bind(styles);
+
+  const fetchPostsByMood = useCallback(async (pageNum) => {
     try {
-      setLoading(true);
-      const data = await getPostByMood();
-      setPosts(data);
+      console.log(`Tải bài viết: page=${pageNum}`);
+      setLoading(pageNum === 1);
+      setIsLoadingMore(pageNum > 1);
+      const data = await getPostByMood(pageNum);
+      console.log("Dữ liệu API:", {
+        posts: data.posts.length,
+        totalPages: data.totalPages,
+      });
+
+      // Thêm độ trễ 1.5 giây trước khi hiển thị bài viết
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      setPosts((prevPosts) =>
+        pageNum === 1 ? data.posts : [...prevPosts, ...data.posts]
+      );
+      setTotalPages(data.totalPages);
       setError(null);
     } catch (error) {
-      console.error("Error fetching posts", error);
+      console.error("Lỗi lấy bài viết:", error);
       setError("Không thể tải bài đăng. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchPostsByMood();
+    fetchPostsByMood(1);
   }, [fetchPostsByMood]);
+
+  useEffect(() => {
+    if (!containerRef?.current) return;
+
+    const handleScroll = () => {
+      const container = containerRef.current;
+      const scrollTop = container.scrollTop;
+      const clientHeight = container.clientHeight;
+      const scrollHeight = container.scrollHeight;
+      const threshold = 200;
+
+      console.log(
+        `Cuộn: scrollTop=${scrollTop}, clientHeight=${clientHeight}, scrollHeight=${scrollHeight}, page=${page}, totalPages=${totalPages}`
+      );
+
+      if (
+        clientHeight + scrollTop >= scrollHeight - threshold &&
+        !isLoadingMore &&
+        page < totalPages
+      ) {
+        console.log(`Kích hoạt tải thêm: page=${page + 1}`);
+        setPage((prevPage) => {
+          const newPage = prevPage + 1;
+          fetchPostsByMood(newPage);
+          return newPage;
+        });
+      }
+    };
+
+    const container = containerRef.current;
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [page, totalPages, isLoadingMore, fetchPostsByMood, containerRef]);
 
   const handlePostCreated = useCallback(
     async (newPost) => {
       setPosts((prevPosts) => [newPost, ...prevPosts]);
       try {
-        await fetchPostsByMood();
+        await fetchPostsByMood(1);
       } catch (error) {
-        console.error("Error refreshing posts:", error);
+        console.error("Lỗi làm mới bài viết:", error);
         setError("Không thể làm mới danh sách bài đăng.");
       }
     },
@@ -55,7 +107,7 @@ const PostList = ({ userId }) => {
     });
   }, []);
 
-  if (loading) return <div>Đang tải bài đăng...</div>;
+  if (loading && page === 1) return <div>Đang tải bài đăng...</div>;
   if (error) return <div>{error}</div>;
 
   return (
@@ -68,6 +120,9 @@ const PostList = ({ userId }) => {
           </li>
         ))}
       </ul>
+      {isLoadingMore && (
+        <div className={cx("text")}>Đang tải thêm bài viết...</div>
+      )}
     </div>
   );
 };

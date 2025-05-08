@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import Sidebar from "../components/Shared/Sidebar";
 import PostList from "../components/Post/PostList";
 import StoryList from "../components/Story/StoryList";
@@ -14,6 +14,7 @@ const cx = classNames.bind(styles);
 const HomePage = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const containerRef = useRef(null);
 
   if (!user) {
     return navigate("/"); // Chuyển hướng nếu không đăng nhập
@@ -25,7 +26,7 @@ const HomePage = () => {
 
   return (
     <Layout className={cx("main-container")}>
-      <div className={cx("container")}>
+      <div className={cx("container")} ref={containerRef}>
         <div className={cx("left-column")}>
           <div className={cx("sidebar-wrapper")}>
             <Sidebar />
@@ -36,7 +37,7 @@ const HomePage = () => {
             <StoryList />
           </div>
           <div className={cx("postlist-wrapper")}>
-            <PostList userId={user._id} />
+            <PostList userId={user._id} containerRef={containerRef} />
           </div>
         </div>
         <div className={cx("right-column")}>

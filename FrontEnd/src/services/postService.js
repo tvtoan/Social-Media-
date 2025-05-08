@@ -80,18 +80,22 @@ export const getPostsByUserId = async (userId) => {
   }
 };
 
-export const getPostByMood = async (mood) => {
+export const getPostByMood = async (page = 1, limit = 5) => {
   try {
     const token = localStorage.getItem("token");
-    const response = await axiosInstance.get(`/mood/${mood}`, {
+    if (!token) {
+      throw new Error("Token not found. Please log in again.");
+    }
+    const response = await axiosInstance.get("/mood", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      params: { page, limit },
     });
     return response.data;
   } catch (error) {
     console.error(
-      `Error fetching posts with mood: ${mood}`,
+      "Error fetching posts by mood",
       error.response ? error.response.data : error.message
     );
     throw error;
@@ -130,6 +134,7 @@ export const likePost = async (postId) => {
     throw error;
   }
 };
+
 export const unLikePost = async (postId) => {
   try {
     const token = localStorage.getItem("token");
