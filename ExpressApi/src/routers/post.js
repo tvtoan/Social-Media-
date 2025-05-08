@@ -29,10 +29,10 @@ const upload = multer({ storage });
 router.post("/", authMiddleware, upload.single("image"), createPost);
 
 router.get("/", authMiddleware, getPosts);
-router.get("/:id", authMiddleware, getPost);
 router.get("/user/:userId", authMiddleware, getPostsByUserId);
-router.get("/mood/:mood", authMiddleware, getPostByMood);
+router.get("/mood", authMiddleware, getPostByMood);
 router.delete("/:id", authMiddleware, deletePost);
+router.get("/:id", authMiddleware, getPost);
 router.post("/like/:postId", authMiddleware, likePost);
 router.post("/unlike/:postId", authMiddleware, unLikePost);
 
