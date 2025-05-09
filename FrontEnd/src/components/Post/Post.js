@@ -43,6 +43,13 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
     }
   }, [user, post.likes]);
 
+  useEffect(() => {
+    // Đồng bộ post với initialPost nếu nó thay đổi
+    setPost(initialPost);
+    setLikeCount(initialPost.likes?.length || 0);
+    setIsLiked(user && initialPost.likes?.includes(user._id));
+  }, [initialPost, user]);
+
   const handleLikeClick = useCallback(async () => {
     try {
       if (isLiked) {
@@ -73,7 +80,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
     } catch (error) {
       console.error("Failed to toggle like", error);
     }
-  }, [isLiked, post._id, onPostUpdated]);
+  }, [isLiked, post, onPostUpdated]);
 
   const handleDeletePost = useCallback(async () => {
     try {
@@ -129,7 +136,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
 
   const handleToggleComments = useCallback(() => {
     setShowComments((prev) => !prev);
-  });
+  }, []);
 
   if (!post) return null;
 

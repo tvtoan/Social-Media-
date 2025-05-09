@@ -45,7 +45,7 @@ const ProfilePage = () => {
       if (!id || !user) return;
       const data = await getUserById(id);
       setUserData(data);
-      setIntroduceInput(data.introduce || ""); // Khởi tạo introduce
+      setIntroduceInput(data.introduce || "");
       setFollowings(data.followers.includes(user?._id));
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -176,16 +176,17 @@ const ProfilePage = () => {
     setIntroduceInput(e.target.value);
   };
 
-  const handlePostCreated = useCallback(
-    (newPost) => {
-      setUserPosts((prevPosts) => [newPost, ...prevPosts]);
-      fetchUserPosts().catch((error) => {
-        console.error("Error refreshing posts:", error);
-        setError("Không thể làm mới danh sách bài đăng.");
-      });
-    },
-    [fetchUserPosts]
-  );
+  const handlePostCreated = useCallback((newPost) => {
+    setUserPosts((prevPosts) => [newPost, ...prevPosts]);
+  }, []);
+
+  const handlePostUpdated = useCallback((updatedPost) => {
+    setUserPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === updatedPost._id ? updatedPost : post
+      )
+    );
+  }, []);
 
   if (!user) {
     return <p>Bạn cần đăng nhập để xem trang này</p>;
@@ -291,7 +292,7 @@ const ProfilePage = () => {
           <ul style={{ listStyle: "none" }}>
             {userPosts.map((post) => (
               <li key={post._id}>
-                <Post post={post} />
+                <Post post={post} onPostUpdated={handlePostUpdated} />
               </li>
             ))}
           </ul>

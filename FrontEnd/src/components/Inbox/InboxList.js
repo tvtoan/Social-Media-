@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createMessage, getMessages } from "../../services/inboxService";
-
 import Message from "./Message";
 import styles from "./InboxList.module.scss";
 import classNames from "classnames/bind";
@@ -25,7 +24,6 @@ const InboxList = ({ receiverId, currentUser }) => {
     if (!newMessage.trim() || !receiverId) return;
 
     try {
-      // send message to receiver
       const sendMessage = await createMessage(receiverId, newMessage);
 
       const messageWithSender = {
@@ -33,7 +31,6 @@ const InboxList = ({ receiverId, currentUser }) => {
         senderId: currentUser,
       };
 
-      // update list message after send message
       setMessages((prevMessages) => [...prevMessages, messageWithSender]);
       setNewMessage("");
     } catch (error) {
@@ -49,7 +46,17 @@ const InboxList = ({ receiverId, currentUser }) => {
   };
 
   useEffect(() => {
-    if (receiverId) fetchMessages(); // get messages from receiver
+    if (receiverId) {
+      fetchMessages(); // Gọi lần đầu
+
+      // Polling: Gọi fetchMessages mỗi 5 giây
+      const interval = setInterval(() => {
+        fetchMessages();
+      }, 5000);
+
+      // Dọn dẹp interval khi component unmount hoặc receiverId thay đổi
+      return () => clearInterval(interval);
+    }
   }, [receiverId, fetchMessages]);
 
   useEffect(() => {

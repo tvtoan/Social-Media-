@@ -7,7 +7,8 @@ import classNames from "classnames/bind";
 
 const PostList = ({ userId, containerRef }) => {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Chỉ dùng cho lần tải đầu
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -15,33 +16,42 @@ const PostList = ({ userId, containerRef }) => {
 
   const cx = classNames.bind(styles);
 
-  const fetchPostsByMood = useCallback(async (pageNum) => {
-    try {
-      console.log(`Tải bài viết: page=${pageNum}`);
-      setLoading(pageNum === 1);
-      setIsLoadingMore(pageNum > 1);
-      const data = await getPostByMood(pageNum);
-      console.log("Dữ liệu API:", {
-        posts: data.posts.length,
-        totalPages: data.totalPages,
-      });
+  const fetchPostsByMood = useCallback(
+    async (pageNum, isRefresh = false) => {
+      try {
+        console.log(`Tải bài viết: page=${pageNum}`);
+        if (isInitialLoading && pageNum === 1 && !isRefresh) {
+          setLoading(true);
+        }
+        setIsLoadingMore(pageNum > 1);
+        const data = await getPostByMood(pageNum);
+        console.log("Dữ liệu API:", {
+          posts: data.posts.length,
+          totalPages: data.totalPages,
+        });
 
-      // Thêm độ trễ 1.5 giây trước khi hiển thị bài viết
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      setPosts((prevPosts) =>
-        pageNum === 1 ? data.posts : [...prevPosts, ...data.posts]
-      );
-      setTotalPages(data.totalPages);
-      setError(null);
-    } catch (error) {
-      console.error("Lỗi lấy bài viết:", error);
-      setError("Không thể tải bài đăng. Vui lòng thử lại sau.");
-    } finally {
-      setLoading(false);
-      setIsLoadingMore(false);
-    }
-  }, []);
+        setPosts((prevPosts) =>
+          pageNum === 1 ? data.posts : [...prevPosts, ...data.posts]
+        );
+        setTotalPages(data.totalPages);
+        setError(null);
+
+        // Sau lần tải đầu, đặt isInitialLoading thành false
+        if (isInitialLoading) {
+          setIsInitialLoading(false);
+        }
+      } catch (error) {
+        console.error("Lỗi lấy bài viết:", error);
+        setError("Không thể tải bài đăng. Vui lòng thử lại sau.");
+      } finally {
+        setLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [isInitialLoading]
+  );
 
   useEffect(() => {
     fetchPostsByMood(1);
@@ -84,7 +94,8 @@ const PostList = ({ userId, containerRef }) => {
     async (newPost) => {
       setPosts((prevPosts) => [newPost, ...prevPosts]);
       try {
-        await fetchPostsByMood(1);
+        // Gọi fetchPostsByMood với isRefresh=true để không bật loading
+        await fetchPostsByMood(1, true);
       } catch (error) {
         console.error("Lỗi làm mới bài viết:", error);
         setError("Không thể làm mới danh sách bài đăng.");
@@ -107,7 +118,7 @@ const PostList = ({ userId, containerRef }) => {
     });
   }, []);
 
-  if (loading && page === 1) return <div>Đang tải bài đăng...</div>;
+  if (loading && isInitialLoading) return <div>Đang tải bài đăng...</div>;
   if (error) return <div>{error}</div>;
 
   return (
