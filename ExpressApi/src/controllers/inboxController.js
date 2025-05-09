@@ -5,11 +5,9 @@ export const createMessage = async (req, res) => {
   const { receiverId, text } = req.body;
 
   if (!receiverId || !text) {
-    return res
-      .status(400)
-      .json({
-        message: "Conversation Id, receiverId and message text are require",
-      });
+    return res.status(400).json({
+      message: "Conversation Id, receiverId and message text are require",
+    });
   }
 
   const newMessage = new Message({
@@ -37,9 +35,9 @@ export const getMessages = async (req, res) => {
         { senderId: receiverId, receiverId: senderId },
       ],
     })
-    .populate("senderId", "username profilePicture")
-    .populate("receiverId", "username profilePicture")
-    .sort({ createAt: 1 });
+      .populate("senderId", "username profilePicture")
+      .populate("receiverId", "username profilePicture")
+      .sort({ createAt: 1 });
 
     res.status(200).json(messages);
   } catch (error) {
