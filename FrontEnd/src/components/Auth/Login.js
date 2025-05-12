@@ -20,7 +20,6 @@ const Login = () => {
     { value: "neutral", label: "😐 Bình thường", color: "bg-gray-200" },
   ];
 
-  console.log(mood);
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -33,18 +32,16 @@ const Login = () => {
       setError(
         error.response
           ? error.response.data.message
-          : "login failed, please try again."
+          : "Đăng nhập thất bại, vui lòng thử lại."
       );
-      console.log("Login failed", error);
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
-      await googleAuth(); // Chuyển hướng đến /api/auth/google
+      await googleAuth();
     } catch (error) {
       setError("Đăng nhập bằng Google thất bại, vui lòng thử lại.");
-      console.log("Google login failed", error);
     }
   };
 
@@ -67,7 +64,6 @@ const Login = () => {
         <form onSubmit={handleLogin} className={cx("form")}>
           <div className={cx("title")}>Chào mừng </div>
           <div className={cx("title")}>Bạn quay trở lại</div>
-
           <div className={cx("title-name")}>NEXUS</div>
           <input
             type="email"
@@ -85,6 +81,7 @@ const Login = () => {
             required
             className={cx("input")}
           />
+          {error && <div className={cx("error-message")}>{error}</div>}
           <a href="/" className={cx("forgot-password")}>
             Bạn quên mật khẩu?
           </a>
@@ -107,11 +104,9 @@ const Login = () => {
               ))}
             </div>
           </div>
-
           <button type="submit" className={cx("login-button")}>
             Đăng nhập
           </button>
-
           <div className={cx("line")}></div>
           <button
             type="button"
@@ -156,8 +151,6 @@ const Login = () => {
           </div>
         </form>
       </div>
-
-      {error && <div>{error}</div>}
     </div>
   );
 };

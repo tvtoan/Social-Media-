@@ -10,15 +10,28 @@ const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError(""); // Reset error state
+
+    // Client-side email validation
+    if (!email.toLowerCase().endsWith("@gmail.com")) {
+      setError("Email không đúng định dạng ");
+      return;
+    }
+
     try {
       await register({ username: name, email, password });
       navigate("/");
     } catch (error) {
-      console.log("Register failed", error);
+      setError(
+        error.response
+          ? error.response.data.message
+          : "Đăng ký thất bại, vui lòng thử lại."
+      );
     }
   };
 
@@ -65,6 +78,7 @@ const Register = () => {
             required
             className={cx("input")}
           />
+          {error && <div className={cx("error-message")}>{error}</div>}
           <div
             style={{
               fontSize: "14px",
@@ -84,12 +98,10 @@ const Register = () => {
               của chúng tôi
             </p>
           </div>
-
           <button type="submit" className={cx("register-button")}>
             Đăng ký
           </button>
           <div className={cx("line")}></div>
-
           <div
             style={{
               display: "flex",
