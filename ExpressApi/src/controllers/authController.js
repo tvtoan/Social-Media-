@@ -11,18 +11,30 @@ export const register = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
+    // Validate email must end with @gmail.com
+    if (!email || !email.toLowerCase().endsWith("@gmail.com")) {
+      return res.status(400).json({ message: "Email không đúng định dạng" });
+    }
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email đã được sử dụng" });
+    }
+
     const user = new User({
       username,
       email,
       password: await bcrypt.hash(password, 10),
     });
     await user.save();
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "Đăng ký thành công" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// ... (rest of the file remains unchanged)
 export const login = async (req, res) => {
   const { email, password, mood } = req.body;
 
@@ -34,10 +46,7 @@ export const login = async (req, res) => {
         .json({ message: "Thông tin đăng nhập chưa chính xác" });
     }
 
-    // Gán mặc định nếu không có mood
     const selectedMood = mood || "neutral";
-
-    // Cập nhật mood
     user.currentMood = selectedMood;
     user.lastLogin = new Date();
     await user.save();
@@ -90,7 +99,6 @@ export const logout = async (req, res) => {
   }
 };
 
-// Start Google OAuth flow
 export const googleAuth = async (req, res) => {
   const authUrl = googleClient.generateAuthUrl({
     scope: [
@@ -101,7 +109,6 @@ export const googleAuth = async (req, res) => {
   res.redirect(authUrl);
 };
 
-// Google OAuth callback
 export const googleCallback = async (req, res) => {
   try {
     const { code } = req.query;
@@ -117,16 +124,14 @@ export const googleCallback = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      // Create new user if doesn't exist
       user = new User({
-        username: name || email.split("@")[0], // Use name or email prefix as username
+        username: name || email.split("@")[0],
         email,
         googleId,
         authProvider: "google",
         currentMood: "neutral",
       });
     } else if (!user.googleId) {
-      // Link existing account with Google
       user.googleId = googleId;
       user.authProvider = "google";
     }
@@ -145,7 +150,6 @@ export const googleCallback = async (req, res) => {
       { expiresIn: "8h" }
     );
 
-    // Redirect to frontend with tokenz`
     res.redirect(
       `http://localhost:3000/auth/callback?token=${token}&points=${user.points}`
     );
@@ -194,7 +198,7 @@ export const getUserByUsername = async (req, res) => {
   }
   try {
     const users = await User.find({
-      username: { $regex: username, $options: "i" }, // "i" k phan biet chu hoa, chu thuong
+      username: { $regex: username, $options: "i" },
     });
     if (users.length === 0) {
       return res.status(404).json({ message: "No user found" });
@@ -219,7 +223,6 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// multer config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploadPictures");
@@ -265,7 +268,6 @@ export const updateCoverPicture = async (req, res) => {
 
 export const uploadSingle = upload.single("image");
 
-// Follow
 export const followUser = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -296,7 +298,6 @@ export const followUser = async (req, res) => {
   }
 };
 
-// Unfollow
 export const unfollowUser = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -330,7 +331,6 @@ export const unfollowUser = async (req, res) => {
   }
 };
 
-// Introduce
 export const updateIntroduce = async (req, res) => {
   try {
     const userId = req.user.id;
