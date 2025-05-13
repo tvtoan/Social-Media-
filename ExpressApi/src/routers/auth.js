@@ -13,6 +13,7 @@ import {
   followUser,
   unfollowUser,
   updateIntroduce,
+  updateAddress,
   googleAuth,
   googleCallback,
   logout,
@@ -37,4 +38,6 @@ router.put("/cover-picture", verifyToken, uploadSingle, updateCoverPicture);
 router.post("/follow/:id", verifyToken, followUser);
 router.delete("/unfollow/:id", verifyToken, unfollowUser);
 router.put("/introduce", verifyToken, updateIntroduce);
+router.put("/address", verifyToken, updateAddress);
+
 export default router;

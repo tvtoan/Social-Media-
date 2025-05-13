@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
         "Mật khẩu là bắt buộc cho đăng nhập cục bộ",
       ],
     },
+    address: { type: String, default: "" },
     currentMood: {
       type: String,
       enum: ["happy", "sad", "excited", "neutral"],

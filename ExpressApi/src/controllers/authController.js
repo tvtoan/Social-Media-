@@ -8,7 +8,7 @@ import { OAuth2Client } from "google-auth-library";
 dotenv.config();
 
 export const register = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, address } = req.body;
 
   try {
     // Validate email must end with @gmail.com
@@ -26,6 +26,7 @@ export const register = async (req, res) => {
       username,
       email,
       password: await bcrypt.hash(password, 10),
+      address: address || "Việt Nam",
     });
     await user.save();
     res.status(201).json({ message: "Đăng ký thành công" });
@@ -34,7 +35,6 @@ export const register = async (req, res) => {
   }
 };
 
-// ... (rest of the file remains unchanged)
 export const login = async (req, res) => {
   const { email, password, mood } = req.body;
 
@@ -130,6 +130,7 @@ export const googleCallback = async (req, res) => {
         googleId,
         authProvider: "google",
         currentMood: "neutral",
+        address: "Việt Nam",
       });
     } else if (!user.googleId) {
       user.googleId = googleId;
@@ -166,6 +167,7 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 export const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -199,7 +201,7 @@ export const getUserByUsername = async (req, res) => {
   try {
     const users = await User.find({
       username: { $regex: username, $options: "i" },
-    });
+    }).select("-password");
     if (users.length === 0) {
       return res.status(404).json({ message: "No user found" });
     }
@@ -339,11 +341,44 @@ export const updateIntroduce = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ message: "User not found" });
     }
+    if (introduce === undefined) {
+      return res.status(400).json({ message: "Introduce is required" });
+    }
+
     const updateUser = await User.findByIdAndUpdate(
       userId,
       { introduce },
       { new: true }
-    );
+    ).select("-password");
+    if (!updateUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(updateUser);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateAddress = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { address } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User not found" });
+    }
+    if (address === undefined) {
+      return res.status(400).json({ message: "Address is required" });
+    }
+
+    const updateUser = await User.findByIdAndUpdate(
+      userId,
+      { address },
+      { new: true }
+    ).select("-password");
+    if (!updateUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
     res.status(200).json(updateUser);
   } catch (error) {
     res.status(500).json({ message: error.message });
