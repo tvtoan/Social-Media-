@@ -42,6 +42,10 @@ const Sidebar = () => {
             className={cx("profile-picture")}
           />
           <div className={cx("username")}>{user.username}</div>
+          <div className={cx("email")}>{user.email}</div>
+          <div className={cx("address")}>
+            Địa chỉ: {user.address || "Chưa có địa chỉ"}
+          </div>
           <div className={cx("follower")}>
             {user.followers.length} Followers
           </div>

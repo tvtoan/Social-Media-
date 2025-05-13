@@ -4,7 +4,6 @@ const API_URL = "http://localhost:3001/api/auth";
 
 export const googleAuth = async () => {
   try {
-    // Chuyển hướng người dùng đến endpoint /api/auth/google
     window.location.href = `${API_URL}/google`;
   } catch (error) {
     console.error("Google Authentication failed", error.message);
@@ -12,10 +11,8 @@ export const googleAuth = async () => {
   }
 };
 
-// Hàm xử lý callback từ Google OAuth (sẽ được gọi từ AuthCallback component)
 export const handleGoogleCallback = async () => {
   try {
-    // Lấy token và points từ query parameters trong URL
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
     const points = params.get("points");
@@ -24,7 +21,6 @@ export const handleGoogleCallback = async () => {
       throw new Error("No token found in callback URL");
     }
 
-    // Lưu token vào localStorage
     localStorage.setItem("token", token);
     return { token, points };
   } catch (error) {
@@ -32,6 +28,7 @@ export const handleGoogleCallback = async () => {
     throw error;
   }
 };
+
 export const register = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/register`, userData);
@@ -83,7 +80,7 @@ export const logout = async () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        withCredentials: true, // xoá cookie nếu có
+        withCredentials: true,
       }
     );
     localStorage.removeItem("token");
@@ -96,11 +93,9 @@ export const logout = async () => {
 
 export const getCurrentUser = async () => {
   const token = localStorage.getItem("token");
-
   if (!token) {
     throw new Error("No token found");
   }
-
   try {
     const response = await axios.get(`${API_URL}/current`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -222,6 +217,9 @@ export const unfollowUser = async (userId) => {
 
 export const updateIntroduce = async (introduce) => {
   const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No token found");
+  }
   try {
     const response = await axios.put(
       `${API_URL}/introduce`,
@@ -235,7 +233,30 @@ export const updateIntroduce = async (introduce) => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error updating introduce", error);
+    console.error("Error updating introduce", error.response?.data || error);
+    throw error;
+  }
+};
+
+export const updateAddress = async (address) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("No token found");
+  }
+  try {
+    const response = await axios.put(
+      `${API_URL}/address`,
+      { address },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating address", error.response?.data || error);
     throw error;
   }
 };

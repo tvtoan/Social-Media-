@@ -8,7 +8,6 @@
   top: 60px;
   left: 0;
   padding-top: 20px;
-
   border-right: 0.5px solid var(--border-color);
 }
 
@@ -23,13 +22,15 @@
   background-color: var(--sidebar-bg);
   position: relative;
   border-radius: 10px;
-  height: 550px;
+  height: 600px; /* Increased height to accommodate email and address */
 }
+
 .cover-picture {
   width: 100%;
   height: auto;
   object-fit: cover;
 }
+
 .profile-picture {
   width: 150px;
   height: 150px;
@@ -41,10 +42,27 @@
 
 .username {
   position: absolute;
-  top: 57%;
+  top: 60%;
   font-size: 25px;
   font-weight: 600;
 }
+
+.email {
+  position: absolute;
+  top: 67%;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.address {
+  position: absolute;
+  top: 73%;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
 .follower {
   position: absolute;
   top: 55%;
@@ -52,6 +70,7 @@
   font-weight: 600;
   left: 6%;
 }
+
 .following {
   position: absolute;
   top: 55%;
@@ -59,16 +78,20 @@
   font-weight: 600;
   right: 6%;
 }
+
 .introduce {
   position: absolute;
-  top: 75%;
+  top: 80%;
   font-size: 20px;
   font-weight: 500;
   font-style: italic;
+  text-align: center;
+  max-width: 80%;
 }
+
 .button {
   position: absolute;
-  top: 87%;
+  top: 90%;
   font-size: 14px;
   background: var(--button-bg);
   color: var(--text-color);
@@ -78,6 +101,7 @@
   width: 40%;
   cursor: pointer;
 }
+
 .sidebar ul {
   list-style: none;
   padding: 0;
@@ -99,9 +123,6 @@
   cursor: pointer;
   margin-right: 15px;
 }
-.username {
-  margin-top: 40px;
-}
 
 .sidebar li p {
   font-size: 1.1rem;
@@ -121,15 +142,48 @@
   margin: 20px 0;
 }
 
-/* Make links responsive on smaller screens */
 @media (max-width: 768px) {
   .sidebar {
     max-width: 280px;
   }
-  .sidebar li {
-    padding-left: 10px;
+  .profile {
+    width: 90%;
+    height: 500px;
   }
-  .link {
-    font-size: 0.9rem;
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+    top: 30%;
+  }
+  .username {
+    top: 50%;
+    font-size: 20px;
+  }
+  .email {
+    top: 60%;
+    font-size: 14px;
+  }
+  .address {
+    top: 65%;
+    font-size: 14px;
+  }
+  .follower {
+    top: 70%;
+    font-size: 16px;
+    left: 5%;
+  }
+  .following {
+    top: 70%;
+    font-size: 16px;
+    right: 5%;
+  }
+  .introduce {
+    top: 75%;
+    font-size: 16px;
+    max-width: 90%;
+  }
+  .button {
+    top: 85%;
+    width: 50%;
   }
 }

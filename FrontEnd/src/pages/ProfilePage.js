@@ -9,6 +9,7 @@ import {
   updateCoverPicture,
   updateProfilePicture,
   updateIntroduce,
+  updateAddress,
 } from "../services/authService";
 import { getPostsByUserId } from "../services/postService";
 import Layout from "../components/Layout/Layout";
@@ -29,6 +30,8 @@ const ProfilePage = () => {
   const [error, setError] = useState("");
   const [isEditingIntroduce, setIsEditingIntroduce] = useState(false);
   const [introduceInput, setIntroduceInput] = useState("");
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [addressInput, setAddressInput] = useState("");
 
   const navigate = useNavigate();
   const profilePictureRef = useRef(null);
@@ -46,6 +49,7 @@ const ProfilePage = () => {
       const data = await getUserById(id);
       setUserData(data);
       setIntroduceInput(data.introduce || "");
+      setAddressInput(data.address || "");
       setFollowings(data.followers.includes(user?._id));
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -167,13 +171,35 @@ const ProfilePage = () => {
         await refreshUser();
       }
     } catch (error) {
-      console.error("Error saving introduce:", error);
+      console.error("Error saving introduce:", error.response?.data || error);
       setError("Không thể cập nhật giới thiệu.");
+    }
+  };
+
+  const handleEditAddress = () => {
+    setIsEditingAddress(true);
+  };
+
+  const handleSaveAddress = async () => {
+    try {
+      const updatedUser = await updateAddress(addressInput);
+      setUserData((prev) => ({ ...prev, address: updatedUser.address }));
+      setIsEditingAddress(false);
+      if (id === user._id) {
+        await refreshUser();
+      }
+    } catch (error) {
+      console.error("Error saving address:", error.response?.data || error);
+      setError("Không thể cập nhật địa chỉ.");
     }
   };
 
   const handleIntroduceChange = (e) => {
     setIntroduceInput(e.target.value);
+  };
+
+  const handleAddressChange = (e) => {
+    setAddressInput(e.target.value);
   };
 
   const handlePostCreated = useCallback((newPost) => {
@@ -241,6 +267,40 @@ const ProfilePage = () => {
           <div className={cx("follower-info")}>
             <p>{userData?.followers.length} followers</p>
             <p>{userData?.followings.length} followings</p>
+          </div>
+
+          <div className={cx("address")}>
+            {isEditingAddress ? (
+              <div className={cx("address-container")}>
+                <input
+                  type="text"
+                  value={addressInput}
+                  onChange={handleAddressChange}
+                  placeholder="Nhập địa chỉ..."
+                  className={cx("address-input")}
+                />
+                <button
+                  onClick={handleSaveAddress}
+                  className={cx("address-button", "save")}
+                >
+                  Save
+                </button>
+              </div>
+            ) : (
+              <div className={cx("address-container")}>
+                <p className={cx("address-text")}>
+                  {userData?.address || "Chưa có địa chỉ"}
+                </p>
+                {user?._id === id && (
+                  <button
+                    onClick={handleEditAddress}
+                    className={cx("address-button", "edit")}
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           <div className={cx("introduce")}>
             {isEditingIntroduce ? (

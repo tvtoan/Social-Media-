@@ -19,16 +19,11 @@ const PostList = ({ userId, containerRef }) => {
   const fetchPostsByMood = useCallback(
     async (pageNum, isRefresh = false) => {
       try {
-        console.log(`Tải bài viết: page=${pageNum}`);
         if (isInitialLoading && pageNum === 1 && !isRefresh) {
           setLoading(true);
         }
         setIsLoadingMore(pageNum > 1);
         const data = await getPostByMood(pageNum);
-        console.log("Dữ liệu API:", {
-          posts: data.posts.length,
-          totalPages: data.totalPages,
-        });
 
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
@@ -66,10 +61,6 @@ const PostList = ({ userId, containerRef }) => {
       const clientHeight = container.clientHeight;
       const scrollHeight = container.scrollHeight;
       const threshold = 200;
-
-      console.log(
-        `Cuộn: scrollTop=${scrollTop}, clientHeight=${clientHeight}, scrollHeight=${scrollHeight}, page=${page}, totalPages=${totalPages}`
-      );
 
       if (
         clientHeight + scrollTop >= scrollHeight - threshold &&
