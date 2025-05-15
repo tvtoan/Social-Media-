@@ -1,56 +1,32 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { getPostByMood } from "../../services/postService";
+import React, { useEffect } from "react";
+import { usePost } from "../../context/PostContext";
 import Post from "./Post";
 import CreatePost from "./CreatePost";
 import styles from "./PostList.module.scss";
 import classNames from "classnames/bind";
 
+const cx = classNames.bind(styles);
+
 const PostList = ({ userId, containerRef }) => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true); // Chỉ dùng cho lần tải đầu
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-
-  const cx = classNames.bind(styles);
-
-  const fetchPostsByMood = useCallback(
-    async (pageNum, isRefresh = false) => {
-      try {
-        if (isInitialLoading && pageNum === 1 && !isRefresh) {
-          setLoading(true);
-        }
-        setIsLoadingMore(pageNum > 1);
-        const data = await getPostByMood(pageNum);
-
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-
-        setPosts((prevPosts) =>
-          pageNum === 1 ? data.posts : [...prevPosts, ...data.posts]
-        );
-        setTotalPages(data.totalPages);
-        setError(null);
-
-        // Sau lần tải đầu, đặt isInitialLoading thành false
-        if (isInitialLoading) {
-          setIsInitialLoading(false);
-        }
-      } catch (error) {
-        console.error("Lỗi lấy bài viết:", error);
-        setError("Không thể tải bài đăng. Vui lòng thử lại sau.");
-      } finally {
-        setLoading(false);
-        setIsLoadingMore(false);
-      }
-    },
-    [isInitialLoading]
-  );
+  const {
+    posts,
+    loading,
+    isInitialLoading,
+    error,
+    page,
+    totalPages,
+    isLoadingMore,
+    setPage,
+    fetchPostsByMood,
+    handlePostCreated,
+    handlePostUpdated,
+  } = usePost();
 
   useEffect(() => {
-    fetchPostsByMood(1);
-  }, [fetchPostsByMood]);
+    if (posts.length === 0 && isInitialLoading) {
+      fetchPostsByMood(1);
+    }
+  }, [fetchPostsByMood, posts.length, isInitialLoading]);
 
   useEffect(() => {
     if (!containerRef?.current) return;
@@ -80,34 +56,6 @@ const PostList = ({ userId, containerRef }) => {
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, [page, totalPages, isLoadingMore, fetchPostsByMood, containerRef]);
-
-  const handlePostCreated = useCallback(
-    async (newPost) => {
-      setPosts((prevPosts) => [newPost, ...prevPosts]);
-      try {
-        // Gọi fetchPostsByMood với isRefresh=true để không bật loading
-        await fetchPostsByMood(1, true);
-      } catch (error) {
-        console.error("Lỗi làm mới bài viết:", error);
-        setError("Không thể làm mới danh sách bài đăng.");
-      }
-    },
-    [fetchPostsByMood]
-  );
-
-  const handlePostUpdated = useCallback((updatedPostOrFunction) => {
-    setPosts((prevPosts) => {
-      if (typeof updatedPostOrFunction === "function") {
-        return updatedPostOrFunction(prevPosts);
-      }
-      if (Array.isArray(updatedPostOrFunction)) {
-        return updatedPostOrFunction;
-      }
-      return prevPosts.map((post) =>
-        post._id === updatedPostOrFunction._id ? updatedPostOrFunction : post
-      );
-    });
-  }, []);
 
   if (loading && isInitialLoading) return <div>Đang tải bài đăng...</div>;
   if (error) return <div>{error}</div>;

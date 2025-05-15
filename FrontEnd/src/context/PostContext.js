@@ -1,65 +1,100 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import {
-  getPosts,
-  createPost as createPostService,
-  deletePost as deletePostService,
-} from "../services/postService";
+import React, { createContext, useContext, useState, useCallback } from "react";
+import { getPostByMood } from "../services/postService";
 
-export const PostContext = createContext();
+const PostContext = createContext();
 
 export const PostProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const fetchPosts = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setPosts([]);
-      return;
-    }
-    setLoading(true);
-    try {
-      const fetchedPosts = await getPosts();
-      setPosts(fetchedPosts);
-    } catch (error) {
-      console.error("Error fetching posts", error);
-      setPosts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchPostsByMood = useCallback(
+    async (pageNum, isRefresh = false) => {
+      try {
+        if (isInitialLoading && pageNum === 1 && !isRefresh) {
+          setLoading(true);
+        }
+        setIsLoadingMore(pageNum > 1);
+        const data = await getPostByMood(pageNum);
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        setPosts((prevPosts) =>
+          pageNum === 1 ? data.posts : [...prevPosts, ...data.posts]
+        );
+        setTotalPages(data.totalPages);
+        setError(null);
+        if (isInitialLoading) {
+          setIsInitialLoading(false);
+        }
+      } catch (error) {
+        console.error("Lỗi lấy bài viết:", error);
+        setError("Không thể tải bài đăng. Vui lòng thử lại sau.");
+      } finally {
+        setLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [isInitialLoading]
+  );
 
-  const createPost = async (postData) => {
-    try {
-      const newPost = await createPostService(postData);
-      setPosts((prevPosts) => [...prevPosts, newPost]);
-    } catch (error) {
-      console.error("Error creating post", error);
-    }
-  };
+  const handlePostCreated = useCallback(
+    async (newPost) => {
+      setPosts((prevPosts) => [newPost, ...prevPosts]);
+      try {
+        await fetchPostsByMood(1, true);
+      } catch (error) {
+        console.error("Lỗi làm mới bài viết:", error);
+        setError("Không thể làm mới danh sách bài đăng.");
+      }
+    },
+    [fetchPostsByMood]
+  );
 
-  const deletePost = async (postId) => {
-    try {
-      await deletePostService(postId);
-      setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
-    } catch (error) {
-      console.error("Error deleting post", error);
-    }
-  };
+  const handlePostUpdated = useCallback((updatedPostOrFunction) => {
+    setPosts((prevPosts) => {
+      if (typeof updatedPostOrFunction === "function") {
+        return updatedPostOrFunction(prevPosts);
+      }
+      if (Array.isArray(updatedPostOrFunction)) {
+        return updatedPostOrFunction;
+      }
+      return prevPosts.map((post) =>
+        post._id === updatedPostOrFunction._id ? updatedPostOrFunction : post
+      );
+    });
+  }, []);
 
-  useEffect(() => {
-    fetchPosts();
+  const resetPosts = useCallback(() => {
+    setPosts([]);
+    setPage(1);
+    setTotalPages(1);
+    setIsInitialLoading(true);
+    setError(null);
   }, []);
 
   return (
     <PostContext.Provider
-      value={{ posts, loading, fetchPosts, createPost, deletePost }}
+      value={{
+        posts,
+        loading,
+        isInitialLoading,
+        error,
+        page,
+        totalPages,
+        isLoadingMore,
+        setPage,
+        fetchPostsByMood,
+        handlePostCreated,
+        handlePostUpdated,
+        resetPosts,
+      }}
     >
       {children}
     </PostContext.Provider>
   );
 };
 
-export const usePost = () => {
-  return useContext(PostContext);
-};
+export const usePost = () => useContext(PostContext);
