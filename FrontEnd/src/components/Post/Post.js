@@ -12,6 +12,7 @@ import { IoIosShareAlt } from "react-icons/io";
 import { RiSendPlaneLine } from "react-icons/ri";
 import { FaDeleteLeft } from "react-icons/fa6";
 import defaultAvt from "../../img/default.jpg";
+import { useNavigate } from "react-router-dom";
 
 const cx = classNames.bind(styles);
 
@@ -35,6 +36,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
   const [showComments, setShowComments] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialPost.likes?.length || 0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user && post.likes) {
@@ -44,7 +46,6 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
   }, [user, post.likes]);
 
   useEffect(() => {
-    // Đồng bộ post với initialPost nếu nó thay đổi
     setPost(initialPost);
     setLikeCount(initialPost.likes?.length || 0);
     setIsLiked(user && initialPost.likes?.includes(user._id));
@@ -138,6 +139,12 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
     setShowComments((prev) => !prev);
   }, []);
 
+  const handleNavigateToProfile = useCallback(() => {
+    if (post.userId?._id) {
+      navigate(`/profile/${post.userId._id}`);
+    }
+  }, [navigate, post.userId]);
+
   if (!post) return null;
 
   return (
@@ -151,9 +158,13 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
           }
           alt={`${post.userId?.username || "Unknown"}'s avatar`}
           className={cx("img")}
+          onClick={handleNavigateToProfile} // Điều hướng đến profile của người đăng
         />
         <div>
-          <h3 className={cx("username")}>
+          <h3
+            className={cx("username")}
+            onClick={handleNavigateToProfile} // Điều hướng khi click vào tên
+          >
             {post.userId?.username || "Unknown User"}
           </h3>
           <p className={cx("post-time")}>{safeFormatDate(post.createdAt)}</p>

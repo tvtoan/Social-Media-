@@ -55,7 +55,14 @@ const PostList = ({ userId, containerRef }) => {
     const container = containerRef.current;
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
-  }, [page, totalPages, isLoadingMore, fetchPostsByMood, containerRef]);
+  }, [
+    page,
+    totalPages,
+    isLoadingMore,
+    fetchPostsByMood,
+    containerRef,
+    setPage,
+  ]);
 
   if (loading && isInitialLoading) return <div>Đang tải bài đăng...</div>;
   if (error) return <div>{error}</div>;
