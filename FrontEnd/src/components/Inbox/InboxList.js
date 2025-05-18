@@ -49,10 +49,10 @@ const InboxList = ({ receiverId, currentUser }) => {
     if (receiverId) {
       fetchMessages(); // Gọi lần đầu
 
-      // Polling: Gọi fetchMessages mỗi 5 giây
+      // Polling: Gọi fetchMessages mỗi 2 giây
       const interval = setInterval(() => {
         fetchMessages();
-      }, 5000);
+      }, 2000);
 
       // Dọn dẹp interval khi component unmount hoặc receiverId thay đổi
       return () => clearInterval(interval);

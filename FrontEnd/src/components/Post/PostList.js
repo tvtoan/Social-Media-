@@ -21,6 +21,8 @@ const PostList = ({ userId, containerRef }) => {
     handlePostCreated,
     handlePostUpdated,
   } = usePost();
+  console.log("Posts in PostList:", posts);
+  console.log("count Post in PostList:", posts.length);
 
   useEffect(() => {
     if (posts.length === 0 && isInitialLoading) {
