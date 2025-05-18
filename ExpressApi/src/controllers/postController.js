@@ -97,89 +97,160 @@ export const getPostByMood = async (req, res) => {
     const skip = (page - 1) * limit;
 
     let filter = {};
-    let sortOptions = { createdAt: -1 };
+    const currentMood = user.currentMood || "neutral";
 
+    const followings = Array.isArray(user.followings)
+      ? user.followings.map((id) => id.toString())
+      : [];
     const likedPosts = await Post.find({ likes: userId }).select("_id");
+    const likedPostIds = likedPosts.map((p) => p._id.toString());
 
-    console.log("Tâm trạng người dùng:", user.currentMood || "neutral");
-    console.log("Followings:", user.followings || []);
-    console.log(
-      "Liked posts:",
-      likedPosts.map((p) => p._id)
-    );
-
-    switch (user.currentMood || "neutral") {
-      case "sad":
-        filter = {
-          $or: [
-            { mood: "happy" },
-            { mood: "excited" },
-            { userId: { $in: user.followings || [] } },
-            { _id: { $in: likedPosts.map((p) => p._id) || [] } },
-          ],
-        };
-        break;
-
+    // Xây dựng filter dựa trên tâm trạng
+    switch (currentMood) {
       case "happy":
-        filter = {
-          $or: [
-            { mood: { $in: ["happy", "excited"] } },
-            { userId: { $in: user.followings || [] } },
-          ],
-        };
-        break;
-
       case "excited":
         filter = {
-          $or: [
-            { mood: "excited" },
-            { userId: { $in: user.followings || [] } },
+          $and: [
+            // Loại bỏ hoàn toàn các bài viết sad
+            { mood: { $ne: "sad" } },
+            {
+              $or: [
+                // Ưu tiên 1: Bài viết cùng tâm trạng
+                { mood: { $in: ["happy", "excited"] } },
+                // Ưu tiên 2: Bài viết từ người đã follow
+                { userId: { $in: followings } },
+                // Ưu tiên 3: Bài viết đã thích
+                { _id: { $in: likedPostIds } },
+                // Các bài viết neutral
+                { mood: "neutral" },
+              ],
+            },
           ],
         };
-        sortOptions = { likes: -1, createdAt: -1 };
+        break;
+
+      case "sad":
+        filter = {
+          $and: [
+            // Loại bỏ hoàn toàn các bài viết sad và neutral
+            { mood: { $nin: ["sad", "neutral"] } },
+            {
+              $or: [
+                // Ưu tiên bài viết vui vẻ để cải thiện tâm trạng
+                { mood: { $in: ["happy", "excited"] } },
+                // Bài viết từ người đã follow
+                { userId: { $in: followings } },
+                // Bài viết đã thích
+                { _id: { $in: likedPostIds } },
+              ],
+            },
+          ],
+        };
         break;
 
       case "neutral":
       default:
+        // Không lọc theo tâm trạng, lấy tất cả bài viết (bao gồm cả sad)
         filter = {};
-        sortOptions = { createdAt: -1 };
         break;
     }
 
-    console.log("Filter bài viết:", filter);
     const totalPosts = await Post.countDocuments(filter);
-    console.log(
-      "Tổng số bài viết:",
-      totalPosts,
-      "Tổng số trang:",
-      Math.ceil(totalPosts / limit)
-    );
+    console.log("Tổng số bài viết:", totalPosts);
 
-    const posts = await Post.find(filter)
-      .populate("userId", "username profilePicture")
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(limit);
+    // Tạo pipeline để sắp xếp theo ưu tiên
+    let aggregationPipeline;
+
+    if (currentMood === "neutral") {
+      // Đối với tâm trạng neutral, chỉ sắp xếp theo thời gian mới nhất
+      aggregationPipeline = [
+        { $match: filter },
+        // Sắp xếp theo thời gian tạo (mới nhất trước)
+        { $sort: { createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+      ];
+    } else {
+      // Đối với các tâm trạng khác, sử dụng logic ưu tiên
+      aggregationPipeline = [
+        { $match: filter },
+        {
+          $addFields: {
+            // Tính điểm ưu tiên cho mỗi bài viết
+            priorityScore: {
+              $sum: [
+                // Ưu tiên 1: Bài viết cùng tâm trạng với người dùng
+                {
+                  $cond: [{ $eq: ["$mood", currentMood] }, 100, 0],
+                },
+                // Ưu tiên 2: Bài viết từ người đã follow
+                {
+                  $cond: [{ $in: ["$userId", followings] }, 50, 0],
+                },
+                // Ưu tiên 3: Bài viết đã thích
+                {
+                  $cond: [{ $in: ["$_id", likedPostIds] }, 25, 0],
+                },
+                // Ưu tiên 4: Số lượng like (chuẩn hóa)
+                {
+                  $multiply: [{ $size: { $ifNull: ["$likes", []] } }, 0.1],
+                },
+              ],
+            },
+          },
+        },
+        // Sắp xếp theo điểm ưu tiên (cao đến thấp) và thời gian (mới đến cũ)
+        { $sort: { priorityScore: -1, createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+      ];
+    }
+
+    const posts = await Post.aggregate(aggregationPipeline);
+
+    // Populate userId sau khi aggregate
+    await Post.populate(posts, {
+      path: "userId",
+      select: "username profilePicture",
+    });
 
     const postWithComments = await Promise.all(
       posts.map(async (post) => {
         const comments = await Comment.find({ postId: post._id })
           .populate("userId", "username profilePicture")
-          .sort({ createdAt: -1 });
-        return { ...post.toObject(), comments };
+          .sort({ createdAt: -1 }); // Sắp xếp bình luận mới nhất trước
+        return { ...post, comments };
       })
     );
 
+    // Thêm bài viết truyền cảm hứng cho người dùng buồn
     const daysSinceLastHappy = user.lastLogin
       ? Math.floor(
           (new Date() - new Date(user.lastLogin)) / (1000 * 60 * 60 * 24)
         )
       : 0;
-    if ((user.currentMood || "neutral") === "sad" && daysSinceLastHappy > 3) {
-      const inspirationalPosts = await Post.find({ mood: "happy" })
-        .sort({ likes: -1 })
-        .limit(5);
-      postWithComments.push(...inspirationalPosts.map((p) => p.toObject()));
+    if (currentMood === "sad" && daysSinceLastHappy > 3) {
+      const existingPostIds = new Set(
+        postWithComments.map((p) => p._id.toString())
+      );
+      const inspirationalPosts = await Post.find({
+        mood: "happy",
+        _id: { $nin: Array.from(existingPostIds) }, // Loại bỏ các bài viết đã có
+      })
+        .sort({ likes: -1, createdAt: -1 }) // Nhiều lượt thích nhất, mới nhất
+        .limit(2); // Chỉ thêm 2 bài để không làm quá tải
+
+      const inspirationalPostsWithData = await Promise.all(
+        inspirationalPosts.map(async (post) => {
+          await post.populate("userId", "username profilePicture");
+          const comments = await Comment.find({ postId: post._id })
+            .populate("userId", "username profilePicture")
+            .sort({ createdAt: -1 });
+          return { ...post.toObject(), comments };
+        })
+      );
+
+      postWithComments.push(...inspirationalPostsWithData);
     }
 
     res.status(200).json({

@@ -27,7 +27,7 @@ export const createComment = async (req, res) => {
 
 export const getCommentsByPostId = async (req, res) => {
   try {
-    const { postId } = res.params;
+    const { postId } = req.params;
     const comments = await Comment.find({ postId })
       .populate("userId", "username profilePicture")
       .sort({ createAt: -1 });
@@ -48,15 +48,15 @@ export const updateComment = async (req, res) => {
       { new: true }
     ).populate("userId", "username profilePicture");
 
-    if (!updateComment) {
+    if (!updatedComment) {
       return res.status(404).json({ message: "Comment not found" });
     }
-    if (updateComment.userId.toString() !== req.user.id) {
+    if (updatedComment.userId.toString() !== req.user.id) {
       return res
         .status(403)
         .json({ message: "You can only update your own comments" });
     }
-    res.status(200).json(updateComment);
+    res.status(200).json(updatedComment);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
