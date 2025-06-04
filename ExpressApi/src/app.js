@@ -1,11 +1,11 @@
 import express from "express";
-import authRouter from "./routers/auth";
-import inboxRouter from "./routers/inbox";
-import postRouter from "./routers/post";
-import storyRouter from "./routers/story";
-import videoRouter from "./routers/video";
-import commentRouter from "./routers/comment";
-import { connectDb } from "./config/db";
+import authRouter from "./routers/auth.js";
+import inboxRouter from "./routers/inbox.js";
+import postRouter from "./routers/post.js";
+import storyRouter from "./routers/story.js";
+import videoRouter from "./routers/video.js";
+import commentRouter from "./routers/comment.js";
+import { connectDb } from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors";
 

@@ -4,9 +4,9 @@ import {
   getCommentsByPostId,
   updateComment,
   deleteComment,
-} from "../controllers/commentController";
+} from "../controllers/commentController.js";
 
-import authMiddleware from "../middlewares/authMiddleware";
+import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 

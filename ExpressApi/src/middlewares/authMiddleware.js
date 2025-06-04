@@ -1,25 +1,24 @@
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 const authMiddleware = (req, res, next) => {
-    const token = req.header('Authorization');
-    
-    if(!token) {
-        return res.status(401).json({message: "No token, authorization denied"})
-    }
-    
-    const newToken = token.startsWith('Bearer') ? token.slice(7).trim() : token ;
-    
-    try {
-        const decoded = jwt.verify(newToken, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
+  const token = req.header("Authorization");
 
-    }catch (error) {
-        res.status(401).json({message: "Token is not valid"});
-    }
-}
+  if (!token) {
+    return res.status(401).json({ message: "No token, authorization denied" });
+  }
+
+  const newToken = token.startsWith("Bearer") ? token.slice(7).trim() : token;
+
+  try {
+    const decoded = jwt.verify(newToken, process.env.JWT_SECRET);
+    req.user = decoded; // lưu thông tin user đã decode từ token
+    next();
+  } catch (error) {
+    res.status(401).json({ message: "Token is not valid" });
+  }
+};
 
 export default authMiddleware;

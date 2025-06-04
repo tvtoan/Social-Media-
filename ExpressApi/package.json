@@ -2,9 +2,11 @@
   "name": "expressapi",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "main": "src/app.js",
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",  
+   "start": "node src/app.js"  
   },
   "keywords": [],
   "author": "",

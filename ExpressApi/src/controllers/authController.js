@@ -1,5 +1,5 @@
-import User from "../model/user";
-import bcrypt from "bcryptjs/dist/bcrypt";
+import User from "../model/user.js";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import multer from "multer";
@@ -7,12 +7,21 @@ import { OAuth2Client } from "google-auth-library";
 
 dotenv.config();
 
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 export const register = async (req, res) => {
   const { username, email, password, address } = req.body;
 
   try {
-    // Validate email must end with @gmail.com
-    if (!email || !email.toLowerCase().endsWith("@gmail.com")) {
+    // Validate input fields
+    if (!username || !email || !password) {
+      return res.status(400).json({
+        message: "Vui lòng điền đầy đủ thông tin username, email và password",
+      });
+    }
+
+    // Validate email format using regex
+    if (!emailRegex.test(email)) {
       return res.status(400).json({ message: "Email không đúng định dạng" });
     }
 
@@ -22,16 +31,25 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Email đã được sử dụng" });
     }
 
+    // Validate password length (optional, for better security)
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Mật khẩu phải có ít nhất 6 ký tự" });
+    }
+
+    // Create new user
     const user = new User({
       username,
       email,
       password: await bcrypt.hash(password, 10),
       address: address || "Việt Nam",
     });
+
     await user.save();
     res.status(201).json({ message: "Đăng ký thành công" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: "Lỗi server: " + error.message });
   }
 };
 
@@ -380,6 +398,22 @@ export const updateAddress = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json(updateUser);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteUserByAdmin = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Người dùng không tồn tại" });
+    }
+
+    await User.findByIdAndDelete(userId);
+    res.status(200).json({ message: "Xóa người dùng thành công" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

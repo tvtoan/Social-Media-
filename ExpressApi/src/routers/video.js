@@ -5,9 +5,9 @@ import {
   getVideo,
   deleteVideo,
   addComment,
-} from "../controllers/videoController";
+} from "../controllers/videoController.js";
 import multer from "multer";
-import authMiddleware from "../middlewares/authMiddleware";
+import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 

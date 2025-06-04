@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema(
     lastLogout: { type: Date, default: null },
     googleId: { type: String },
     authProvider: { type: String, enum: ["local", "google"], default: "local" },
+    isAdmin: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

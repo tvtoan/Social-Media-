@@ -17,9 +17,12 @@ import {
   googleAuth,
   googleCallback,
   logout,
-} from "../controllers/authController";
+  deleteUserByAdmin,
+} from "../controllers/authController.js";
 import multer from "multer";
 import path from "path";
+import authMiddleware from "../middlewares/authMiddleware.js";
+import adminMiddleware from "../middlewares/adminMiddleware.js";
 
 const router = express.Router();
 
@@ -39,5 +42,11 @@ router.post("/follow/:id", verifyToken, followUser);
 router.delete("/unfollow/:id", verifyToken, unfollowUser);
 router.put("/introduce", verifyToken, updateIntroduce);
 router.put("/address", verifyToken, updateAddress);
+router.delete(
+  "/admin/delete/:id",
+  authMiddleware,
+  adminMiddleware,
+  deleteUserByAdmin
+);
 
 export default router;

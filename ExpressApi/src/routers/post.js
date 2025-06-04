@@ -8,8 +8,8 @@ import {
   getPostByMood,
   likePost,
   unLikePost,
-} from "../controllers/postController";
-import authMiddleware from "../middlewares/authMiddleware";
+} from "../controllers/postController.js";
+import authMiddleware from "../middlewares/authMiddleware.js";
 import multer from "multer";
 import path from "path";
 

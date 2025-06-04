@@ -1,11 +1,11 @@
 import express, { Router } from "express";
-import authMiddleware from "../middlewares/authMiddleware";
+import authMiddleware from "../middlewares/authMiddleware.js";
 import {
   createStory,
   getStories,
   getStory,
   deleteStory,
-} from "../controllers/storyController";
+} from "../controllers/storyController.js";
 import multer from "multer";
 
 const router = express.Router();

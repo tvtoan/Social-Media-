@@ -136,11 +136,8 @@ export const getPostByMood = async (req, res) => {
             { mood: { $nin: ["sad", "neutral"] } },
             {
               $or: [
-                // Ưu tiên bài viết vui vẻ để cải thiện tâm trạng
                 { mood: { $in: ["happy", "excited"] } },
-                // Bài viết từ người đã follow
                 { userId: { $in: followings } },
-                // Bài viết đã thích
                 { _id: { $in: likedPostIds } },
               ],
             },
@@ -150,7 +147,7 @@ export const getPostByMood = async (req, res) => {
 
       case "neutral":
       default:
-        // Không lọc theo tâm trạng, lấy tất cả bài viết (bao gồm cả sad)
+        // lấy tất cả bài viết (bao gồm cả sad)
         filter = {};
         break;
     }
@@ -162,16 +159,13 @@ export const getPostByMood = async (req, res) => {
     let aggregationPipeline;
 
     if (currentMood === "neutral") {
-      // Đối với tâm trạng neutral, chỉ sắp xếp theo thời gian mới nhất
       aggregationPipeline = [
         { $match: filter },
-        // Sắp xếp theo thời gian tạo (mới nhất trước)
         { $sort: { createdAt: -1 } },
         { $skip: skip },
         { $limit: limit },
       ];
     } else {
-      // Đối với các tâm trạng khác, sử dụng logic ưu tiên
       aggregationPipeline = [
         { $match: filter },
         {
@@ -179,19 +173,15 @@ export const getPostByMood = async (req, res) => {
             // Tính điểm ưu tiên cho mỗi bài viết
             priorityScore: {
               $sum: [
-                // Ưu tiên 1: Bài viết cùng tâm trạng với người dùng
                 {
                   $cond: [{ $eq: ["$mood", currentMood] }, 100, 0],
                 },
-                // Ưu tiên 2: Bài viết từ người đã follow
                 {
                   $cond: [{ $in: ["$userId", followings] }, 50, 0],
                 },
-                // Ưu tiên 3: Bài viết đã thích
                 {
                   $cond: [{ $in: ["$_id", likedPostIds] }, 25, 0],
                 },
-                // Ưu tiên 4: Số lượng like (chuẩn hóa)
                 {
                   $multiply: [{ $size: { $ifNull: ["$likes", []] } }, 0.1],
                 },
@@ -199,7 +189,7 @@ export const getPostByMood = async (req, res) => {
             },
           },
         },
-        // Sắp xếp theo điểm ưu tiên (cao đến thấp) và thời gian (mới đến cũ)
+        // Sắp xếp theo điểm ưu tiên và thời gian
         { $sort: { priorityScore: -1, createdAt: -1 } },
         { $skip: skip },
         { $limit: limit },
@@ -218,7 +208,7 @@ export const getPostByMood = async (req, res) => {
       posts.map(async (post) => {
         const comments = await Comment.find({ postId: post._id })
           .populate("userId", "username profilePicture")
-          .sort({ createdAt: -1 }); // Sắp xếp bình luận mới nhất trước
+          .sort({ createdAt: -1 });
         return { ...post, comments };
       })
     );
@@ -238,7 +228,7 @@ export const getPostByMood = async (req, res) => {
         _id: { $nin: Array.from(existingPostIds) }, // Loại bỏ các bài viết đã có
       })
         .sort({ likes: -1, createdAt: -1 }) // Nhiều lượt thích nhất, mới nhất
-        .limit(2); // Chỉ thêm 2 bài để không làm quá tải
+        .limit(2); // thêm 2 bài
 
       const inspirationalPostsWithData = await Promise.all(
         inspirationalPosts.map(async (post) => {
