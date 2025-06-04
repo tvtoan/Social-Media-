@@ -260,3 +260,13 @@ export const updateAddress = async (address) => {
     throw error;
   }
 };
+
+export const deleteUser = async (userId) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found");
+
+  const response = await axios.delete(`${API_URL}/admin/delete/${userId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};

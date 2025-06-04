@@ -6,6 +6,9 @@ import classNames from "classnames/bind";
 
 const cx = classNames.bind(styles);
 
+// Regex để kiểm tra định dạng email
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,8 +21,8 @@ const Register = () => {
     setError(""); // Reset error state
 
     // Client-side email validation
-    if (!email.toLowerCase().endsWith("@gmail.com")) {
-      setError("Email không đúng định dạng ");
+    if (!emailRegex.test(email)) {
+      setError("Email không đúng định dạng (ví dụ: user@domain.com)");
       return;
     }
 
@@ -78,6 +81,7 @@ const Register = () => {
             required
             className={cx("input")}
           />
+
           {error && <div className={cx("error-message")}>{error}</div>}
           <div
             style={{

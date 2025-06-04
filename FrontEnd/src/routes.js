@@ -11,6 +11,7 @@ import StoryPage from "./pages/StoryPage";
 import VideoPage from "./pages/VideoPage";
 import ProfilePage from "./pages/ProfilePage";
 import AuthCallback from "./components/Auth/AuthCallback";
+import AdminDashboard from "./components/Admin/AdminDashboard";
 
 const AppRoutes = () => {
   return (
@@ -22,6 +23,7 @@ const AppRoutes = () => {
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/inbox/:receiverId" element={<InboxPage />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/story/:id" element={<StoryPage />} />
           <Route path="/video" element={<VideoPage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
