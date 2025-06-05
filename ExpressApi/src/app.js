@@ -8,16 +8,18 @@ import commentRouter from "./routers/comment.js";
 import { connectDb } from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors";
+import fs from "fs";
+import path from "path";
 
-// config for dotenv
+// Config for dotenv
 dotenv.config();
 
 const app = express();
 
-// config cors (dùng FRONTEND_URL từ môi trường)
+// Config CORS
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000", // Linh hoạt cho cục bộ và deploy
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
     credentials: true,
   })
 );
@@ -25,24 +27,37 @@ app.use(
 // Middleware
 app.use(express.json());
 
-// Xử lý đường dẫn tĩnh, đảm bảo tồn tại hoặc bỏ qua khi không có
+// Create static directories if they don't exist
+const uploadDirs = [
+  "uploads",
+  "uploadStories",
+  "uploadVideos",
+  "uploadPictures",
+];
+uploadDirs.forEach((dir) => {
+  const dirPath = path.join(process.cwd(), dir);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+});
+
+// Serve static files
 app.use("/uploads", express.static("uploads"));
 app.use("/uploadStories", express.static("uploadStories"));
 app.use("/uploadVideos", express.static("uploadVideos"));
 app.use("/uploadPictures", express.static("uploadPictures"));
 
-// connect Db
+// Connect to MongoDB
 const dbURI = process.env.MONGODB_URI;
-console.log("Database URI:", dbURI);
 if (dbURI) {
   connectDb(dbURI).catch((err) =>
-    console.log("Database connection error:", err)
+    console.error("❌ Lỗi kết nối cơ sở dữ liệu:", err.message)
   );
 } else {
-  console.log("MONGODB_URI is not defined in environment variables");
+  console.error("❌ MONGODB_URI chưa được định nghĩa trong biến môi trường");
 }
 
-// router
+// Routes
 app.use("/api/auth", authRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/stories", storyRouter);
@@ -50,9 +65,15 @@ app.use("/api/videos", videoRouter);
 app.use("/api/inbox", inboxRouter);
 app.use("/api/comments", commentRouter);
 
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Đã xảy ra lỗi!" });
+});
+
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
-  console.log(`Backend server is running on http://localhost:${port}`);
+  console.log(`Backend server đang chạy trên http://localhost:${port}`);
 });
 
 export const viteNodeApp = app;
