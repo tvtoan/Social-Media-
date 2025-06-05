@@ -14,10 +14,10 @@ dotenv.config();
 
 const app = express();
 
-// config cors
+// config cors (dùng FRONTEND_URL từ môi trường)
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_URL || "http://localhost:3000", // Linh hoạt cho cục bộ và deploy
     credentials: true,
   })
 );
@@ -25,14 +25,22 @@ app.use(
 // Middleware
 app.use(express.json());
 
+// Xử lý đường dẫn tĩnh, đảm bảo tồn tại hoặc bỏ qua khi không có
 app.use("/uploads", express.static("uploads"));
 app.use("/uploadStories", express.static("uploadStories"));
 app.use("/uploadVideos", express.static("uploadVideos"));
 app.use("/uploadPictures", express.static("uploadPictures"));
 
 // connect Db
-console.log("Database URI:", process.env.DB_URI);
-connectDb(process.env.DB_URI);
+const dbURI = process.env.MONGODB_URI;
+console.log("Database URI:", dbURI);
+if (dbURI) {
+  connectDb(dbURI).catch((err) =>
+    console.log("Database connection error:", err)
+  );
+} else {
+  console.log("MONGODB_URI is not defined in environment variables");
+}
 
 // router
 app.use("/api/auth", authRouter);
