@@ -56,7 +56,7 @@ const Video = ({ video }) => {
         <img
           src={
             video.userId
-              ? `http://localhost:3001${video.userId?.profilePicture}`
+              ? `https://social-media-7uo4.onrender.com${video.userId?.profilePicture}`
               : defaultAvt
           }
           alt="profile"
@@ -69,7 +69,7 @@ const Video = ({ video }) => {
       <h3 className={cx("description")}>{video.description}</h3>
       <video controls className={cx("file-video")}>
         <source
-          src={`http://localhost:3001/${video.videoPath}`}
+          src={`https://social-media-7uo4.onrender.com/${video.videoPath}`}
           type="video/mp4"
         />
       </video>
@@ -106,7 +106,7 @@ const Video = ({ video }) => {
                         <img
                           src={
                             comment.userId
-                              ? `http://localhost:3001${comment.userId?.profilePicture}`
+                              ? `https://social-media-7uo4.onrender.com${comment.userId?.profilePicture}`
                               : defaultAvt
                           }
                           alt="profile"

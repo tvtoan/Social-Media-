@@ -15,7 +15,7 @@ const Story = ({ story }) => {
   return (
     <div className={cx("story")} onClick={handleStoryClick}>
       <img
-        src={`http://localhost:3001${story.image}`}
+        src={`https://social-media-7uo4.onrender.com${story.image}`}
         alt="story"
         className={cx("story-image")}
       />
@@ -25,7 +25,7 @@ const Story = ({ story }) => {
             <img
               src={
                 story.userId
-                  ? `http://localhost:3001${story.userId?.profilePicture}`
+                  ? `https://social-media-7uo4.onrender.com${story.userId?.profilePicture}`
                   : defaultAvt
               }
               alt="profile"

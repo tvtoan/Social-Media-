@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://social-media-b4.onrender.com/api/stories";
+const API_URL = "https://social-media-7uo4.onrender.com/api/stories";
 
 export const createStory = async (formData) => {
   try {

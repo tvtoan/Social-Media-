@@ -26,7 +26,7 @@ const Sidebar = () => {
           <img
             src={
               user.coverPicture
-                ? `http://localhost:3001${user.coverPicture}`
+                ? `https://social-media-7uo4.onrender.com${user.coverPicture}`
                 : defaultAvt
             }
             alt="CoverPicture"
@@ -35,7 +35,7 @@ const Sidebar = () => {
           <img
             src={
               user.profilePicture
-                ? `http://localhost:3001${user.profilePicture}`
+                ? `https://social-media-7uo4.onrender.com${user.profilePicture}`
                 : defaultAvt
             }
             alt="ProfilePicture"

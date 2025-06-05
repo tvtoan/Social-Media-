@@ -30,7 +30,7 @@ const UserList = () => {
               <img
                 src={
                   user.profilePicture
-                    ? `http://localhost:3001${user.profilePicture}`
+                    ? `https://social-media-7uo4.onrender.com${user.profilePicture}`
                     : defaultAvt
                 }
                 alt="profile"

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://social-media-b4.onrender.com/api/posts";
+const API_URL = "https://social-media-7uo4.onrender.com/api/posts";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,

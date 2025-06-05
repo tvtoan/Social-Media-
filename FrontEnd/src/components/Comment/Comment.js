@@ -108,7 +108,7 @@ const Comment = ({
         <img
           src={
             comment.userId && comment.userId.profilePicture
-              ? `http://localhost:3001${comment.userId.profilePicture}`
+              ? `https://social-media-7uo4.onrender.com${comment.userId.profilePicture}`
               : defaultAvt
           }
           alt={`${comment.userId?.username || "Unknown"}'s avatar`}

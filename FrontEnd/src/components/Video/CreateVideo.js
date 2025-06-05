@@ -68,7 +68,7 @@ const CreateVideo = ({ onVideoCreated, userId }) => {
         <img
           src={
             user && user.profilePicture
-              ? `http://localhost:3001${user.profilePicture}`
+              ? `https://social-media-7uo4.onrender.com${user.profilePicture}`
               : defaultAvt
           }
           alt="profile"

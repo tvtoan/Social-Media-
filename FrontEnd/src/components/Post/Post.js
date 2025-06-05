@@ -153,7 +153,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
         <img
           src={
             post.userId?.profilePicture
-              ? `http://localhost:3001${post.userId.profilePicture}`
+              ? `https://social-media-7uo4.onrender.com${post.userId.profilePicture}`
               : defaultAvt
           }
           alt={`${post.userId?.username || "Unknown"}'s avatar`}
@@ -179,7 +179,7 @@ const Post = ({ post: initialPost, onPostUpdated }) => {
       <p className={cx("description")}>{post.description}</p>
       {post.image && (
         <img
-          src={`http://localhost:3001${post.image}`}
+          src={`https://social-media-7uo4.onrender.com${post.image}`}
           alt="Post"
           className={cx("post-image")}
         />

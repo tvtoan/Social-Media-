@@ -113,13 +113,13 @@ const Header = () => {
                 <div
                   key={user._id}
                   className={cx("search-result-item")}
-                  onClick={() => navigate(`/profile/${user._id}`)} 
-                  style={{ cursor: "pointer" }} 
+                  onClick={() => navigate(`/profile/${user._id}`)}
+                  style={{ cursor: "pointer" }}
                 >
                   <img
                     src={
                       user.profilePicture
-                        ? `http://localhost:3001${user?.profilePicture}`
+                        ? `https://social-media-7uo4.onrender.com${user?.profilePicture}`
                         : defaultAvt
                     }
                     alt="profile"
@@ -147,7 +147,7 @@ const Header = () => {
         <img
           src={
             user?.profilePicture
-              ? `http://localhost:3001${user?.profilePicture}`
+              ? `https://social-media-7uo4.onrender.com${user?.profilePicture}`
               : defaultAvt
           }
           alt="profile"

@@ -64,7 +64,7 @@ const InboxPage = () => {
                 <img
                   src={
                     receiver.profilePicture
-                      ? `http://localhost:3001${receiver.profilePicture}`
+                      ? `https://social-media-7uo4.onrender.com${receiver.profilePicture}`
                       : defaultAvt
                   }
                   alt="avt"

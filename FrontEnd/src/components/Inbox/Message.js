@@ -29,7 +29,7 @@ const Message = ({ message, isCurrentUser }) => {
       <div className={cx("message-box")}>
         <p className={cx("message-text")}>{message.text}</p>
         <img
-          src={`http://localhost:3001${message.senderId?.profilePicture}`}
+          src={`https://social-media-7uo4.onrender.com${message.senderId?.profilePicture}`}
           alt="img"
           className={cx("img")}
         />

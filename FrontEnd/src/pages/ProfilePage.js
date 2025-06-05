@@ -226,7 +226,7 @@ const ProfilePage = () => {
           <img
             src={
               userData?.coverPicture
-                ? `http://localhost:3001${userData.coverPicture}`
+                ? `https://social-media-7uo4.onrender.com${userData.coverPicture}`
                 : "/default-cover.jpg"
             }
             alt="Cover"
@@ -247,7 +247,7 @@ const ProfilePage = () => {
           <img
             src={
               userData?.profilePicture
-                ? `http://localhost:3001${userData.profilePicture}`
+                ? `https://social-media-7uo4.onrender.com${userData.profilePicture}`
                 : defaultAvt
             }
             alt="Avatar"

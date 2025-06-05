@@ -67,7 +67,7 @@ const StoryPage = () => {
             <img
               src={
                 story.userId?.profilePicture
-                  ? `http://localhost:3001${story.userId.profilePicture}`
+                  ? `https://social-media-7uo4.onrender.com${story.userId.profilePicture}`
                   : defaultAvt
               }
               alt="avt"
@@ -89,7 +89,7 @@ const StoryPage = () => {
 
           {story.image && (
             <img
-              src={`http://localhost:3001${story.image}`}
+              src={`https://social-media-7uo4.onrender.com${story.image}`}
               alt="Story"
               className={cx("story-image")}
             />

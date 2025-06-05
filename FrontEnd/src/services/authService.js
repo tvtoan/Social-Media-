@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://social-media-b4.onrender.com/api/auth";
+const API_URL = "https://social-media-7uo4.onrender.com/api/auth";
 
 export const googleAuth = async () => {
   try {
