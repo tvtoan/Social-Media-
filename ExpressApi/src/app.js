@@ -21,6 +21,8 @@ app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
 
@@ -58,6 +60,9 @@ if (dbURI) {
 }
 
 // Routes
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Backend server đang chạy!" });
+});
 app.use("/api/auth", authRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/stories", storyRouter);

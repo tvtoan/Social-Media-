@@ -170,7 +170,7 @@ export const googleCallback = async (req, res) => {
     );
 
     res.redirect(
-      `http://localhost:3000/auth/callback?token=${token}&points=${user.points}`
+      `${process.env.FRONTEND_URL}/auth/callback?token=${token}&points=${user.points}`
     );
   } catch (error) {
     res.status(500).json({ message: error.message });

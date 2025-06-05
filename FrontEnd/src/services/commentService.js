@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3001/api/comments";
+const API_URL = "https://social-media-b4.onrender.com/api/comments";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
